@@ -1,117 +1,132 @@
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import SearchForm from "@/components/search/SearchForm"
 import AppHeader from "@/components/layout/AppHeader"
+import QuerySummary from "@/components/results/QuerySummary"
+import ResultsControls from "@/components/results/ResultsControls"
+import FlightCard from "@/components/results/FlightCard"
+import { getMockFlights } from "@/lib/mockFlights"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Flight",
 }
 
-export default function FlightBookingPage() {
+type SearchParams = {
+  from?: string
+  to?: string
+  depart?: string
+  return?: string
+  pax?: string
+  trip?: "round" | "oneway" | "multicity"
+  transport?: "pesawat" | "bus" | "kapal"
+}
+
+export default function FlightBookingPage({ searchParams }: { searchParams: SearchParams }) {
+  const from = searchParams.from
+  const to = searchParams.to
+  const pax = Number(searchParams.pax || 1)
+  const trip = searchParams.trip || "round"
+  const depart = searchParams.depart
+  const ret = searchParams.return
+  const transport = searchParams.transport || "pesawat"
+
+  const formatDate = (v?: string) =>
+    v ? new Date(v).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : undefined
+
+  const hasQuery = Boolean(from && to)
+
+  // helpers for filter/sort
+  const parseMinutes = (t: string) => {
+    if (t.includes("h")) {
+      const [h, m] = t.split("h").map((s) => s.replace(/[^0-9]/g, "")).filter(Boolean)
+      const hh = Number(h || 0)
+      const mm = Number(m || 0)
+      return hh * 60 + mm
+    }
+    const [hh, mm] = t.split(":").map(Number)
+    return hh * 60 + mm
+  }
+
+  const qStops = searchParams.stops || "any" // any|nonstop|transit
+  const qSort = (searchParams.sort as string) || "price"
+  const qAirline = (searchParams.airline as string) || ""
+  const qPriceMin = Number(searchParams.price_min || 0)
+  const qPriceMax = Number(searchParams.price_max || 1000000)
+
+  const flightsData = getMockFlights()
+  const airlinesAll = Array.from(new Set(flightsData.map((f) => f.airline)))
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AppHeader title="" />
 
-      {/* Search Form (moved below header) */}
+      {/* Search Form (below header) */}
       <section className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <SearchForm inline={false} />
+        <div className="max-w-7xl mx-auto px-6 py-4" id="flight-searchForm">
+          <SearchForm inline={false} actionPath="/flight" />
         </div>
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        {/* Query summary (only when both from & to present) */}
+        {/* {hasQuery && (
+          <div className="mb-4 bg-white border border-gray-200 rounded-lg p-4">
+            <QuerySummary from={from} to={to} pax={pax} trip={trip} depart={depart} ret={ret} transport={transport} />
+          </div>
+        )} */}
+
+        {/* Sorting & Filters */}
+        <ResultsControls airlines={airlinesAll} priceMaxDefault={1000000} />
+
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_20rem] gap-6 lg:gap-8 items-start">
           {/* Flight Results */}
           <div className="space-y-4">
-            {/* Delta Flight */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                <img src="/airplane-wing-sunset-view-from-window.jpg" alt="Flight view" className="w-full sm:w-40 h-36 sm:h-28 rounded-lg object-cover" />
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">Delta • DL 123</h3>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                      Best
-                    </Badge>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                      Refundable
-                    </Badge>
-                  </div>
-
-                  <div className="text-gray-600 mb-1">JFK 08:10 – LAX 11:25 • 6h 15m • Nonstop</div>
-
-                  <div className="text-gray-500 text-sm">Economy • Wi‑Fi • Power</div>
-                </div>
-
-                <div className="sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">$289</div>
-                  <div className="text-sm text-gray-500 mb-4">per traveler</div>
-                  <Button className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full">Select</Button>
-                </div>
+            {!hasQuery ? (
+              <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-600">
+                Tidak ditemukan data
               </div>
-            </div>
-
-            {/* United Flight */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                <img
-                  src="/airplane-interior-cabin-seats-aisle.jpg"
-                  alt="Flight interior"
-                  className="w-full sm:w-40 h-36 sm:h-28 rounded-lg object-cover"
-                />
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">United • UA 456</h3>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                      Shortest
-                    </Badge>
+            ) : (
+              (() => {
+                let flights = flightsData.filter(
+                  (f) => f.from.includes(from as string) && f.to.includes(to as string)
+                )
+                // filter by date
+                if (depart) flights = flights.filter((f) => f.departDate === depart)
+                // filter stops
+                if (qStops === "nonstop") flights = flights.filter((f) => f.stops === 0)
+                else if (qStops === "transit") flights = flights.filter((f) => f.stops > 0)
+                // filter airline
+                if (qAirline) {
+                  const allow = new Set(qAirline.split(",").filter(Boolean))
+                  flights = flights.filter((f) => allow.has(f.airline))
+                }
+                // filter price
+                flights = flights.filter((f) => f.price >= qPriceMin && f.price <= qPriceMax)
+                // sort
+                flights = [...flights].sort((a, b) => {
+                  if (qSort === "price") return a.price - b.price
+                  if (qSort === "duration") return parseMinutes(a.duration) - parseMinutes(b.duration)
+                  if (qSort === "depart-asc") return parseMinutes(a.departTime) - parseMinutes(b.departTime)
+                  if (qSort === "depart-desc") return parseMinutes(b.departTime) - parseMinutes(a.departTime)
+                  if (qSort === "arrive-asc") return parseMinutes(a.arriveTime) - parseMinutes(b.arriveTime)
+                  if (qSort === "arrive-desc") return parseMinutes(b.arriveTime) - parseMinutes(a.arriveTime)
+                  return 0
+                })
+                if (flights.length === 0)
+                  return (
+                    <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-600">
+                      Tidak ada hasil untuk rute ini (mock data).
+                    </div>
+                  )
+                return (
+                  <div className="grid gap-4">
+                    {flights.map((f) => (
+                      <FlightCard key={f.id} flight={f} />
+                    ))}
                   </div>
-
-                  <div className="text-gray-600 mb-1">EWR 09:30 – LAX 12:45 • 6h 15m • Nonstop</div>
-
-                  <div className="text-gray-500 text-sm">Economy • Basic baggage</div>
-                </div>
-
-                <div className="sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">$279</div>
-                  <div className="text-sm text-gray-500 mb-4">per traveler</div>
-                  <Button className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full">Select</Button>
-                </div>
-              </div>
-            </div>
-
-            {/* JetBlue Flight */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                <img
-                  src="/airplane-exterior-wing-sky-clouds-sunset.jpg"
-                  alt="Flight exterior"
-                  className="w-full sm:w-40 h-36 sm:h-28 rounded-lg object-cover"
-                />
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">JetBlue • B6 789</h3>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                      More legroom
-                    </Badge>
-                  </div>
-
-                  <div className="text-gray-600 mb-1">JFK 10:20 – LAX 13:45 • 6h 25m • Nonstop</div>
-
-                  <div className="text-gray-500 text-sm">Even More Space • Wi‑Fi</div>
-                </div>
-
-                <div className="sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">$315</div>
-                  <div className="text-sm text-gray-500 mb-4">per traveler</div>
-                  <Button className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full">Select</Button>
-                </div>
-              </div>
-            </div>
+                )
+              })()
+            )}
           </div>
 
           {/* Booking Sidebar */}
@@ -119,36 +134,42 @@ export default function FlightBookingPage() {
             <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Book your flight</h2>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between">
-                  <div>
-                    <div className="text-sm font-medium text-gray-700">FROM</div>
-                    <div className="text-gray-900">JFK New York</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-700">TO</div>
-                    <div className="text-gray-900">LAX Los Angeles</div>
-                  </div>
-                </div>
+              {!hasQuery ? (
+                <div className="text-gray-600">Tidak ditemukan data</div>
+              ) : (
+                <>
+                  <div className="space-y-4 mb-6">
+                    <div className="flex justify-between">
+                      <div>
+                        <div className="text-sm text-gray-600 mr-2">Dari</div>
+                        <div className="text-gray-900">{from}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-gray-600 mr-2">Ke</div>
+                        <div className="text-gray-900">{to}</div>
+                      </div>
+                    </div>
 
-                <div className="flex justify-between">
-                  <div>
-                    <div className="text-sm font-medium text-gray-700">DEPART</div>
-                    <div className="text-gray-500">Add date</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-700">RETURN</div>
-                    <div className="text-gray-500">Add date</div>
-                  </div>
-                </div>
+                    <div className="flex justify-between">
+                      <div>
+                        <div className="text-sm font-medium text-gray-700">Pergi</div>
+                        <div className="text-gray-900">{formatDate(depart) || "—"}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium text-gray-700">Kembali</div>
+                        <div className="text-gray-900">{trip === "round" ? (formatDate(ret) || "—") : "—"}</div>
+                      </div>
+                    </div>
 
-                <div>
-                  <div className="text-sm font-medium text-gray-700">PASSENGERS</div>
-                  <div className="text-gray-900">1 adult, Economy</div>
-                </div>
-              </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-700">Passengers</div>
+                      <div className="text-gray-900">{pax} {pax > 1 ? "penumpang" : "penumpang"}</div>
+                    </div>
+                  </div>
 
-              <Button className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded-full">Reserve flight</Button>
+                  <Button className="w-full bg-black hover:bg-gray-800 text-white py-5 text-md rounded-full">Booking Sekarang</Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -156,4 +177,3 @@ export default function FlightBookingPage() {
     </div>
   )
 }
-

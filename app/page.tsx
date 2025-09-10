@@ -22,21 +22,15 @@ export default function HomePage() {
           backgroundPosition: "center",
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
+        <div className="max-w-7xl mx-auto px-6 py-12 lg:py-10">
           <div className="min-h-[420px] flex items-center justify-center">
-            <div className="max-w-7xl w-full text-center bg-white/40 rounded-xl p-6 sm:p-8">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900">
+            <div className="max-w-7xl w-full text-center bg-black/40 rounded-xl p-6 sm:p-8 backdrop-blur-xs">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-gray-200">
                 Temukan Tiket Terbaik untuk Perjalananmu
               </h1>
-              <p className="mt-4 text-gray-900 text-base sm:text-lg">
+              <p className="mt-4 text-gray-100 text-base sm:text-lg">
                 Satu tempat untuk membandingkan penerbangan, bus, dan kapal. Hemat waktu, hemat biaya, tanpa ribet.
               </p>
-
-              <div className="mt-6 flex items-center justify-center gap-3">
-                <Link href="/flight">
-                  <Button className="bg-black hover:bg-gray-800 text-white rounded-full px-6">Mulai Booking</Button>
-                </Link>
-              </div>
             </div>
           </div>
         </div>
@@ -45,7 +39,7 @@ export default function HomePage() {
         <div className="hidden lg:block absolute -bottom-24 left-0 right-0">
           <div className="max-w-7xl mx-auto px-6 flex justify-center">
             <div className="w-full max-w-7xl drop-shadow-2xl">
-              <SearchForm inline={false} />
+            <SearchForm inline={false} actionPath="/flight" />
             </div>
           </div>
         </div>

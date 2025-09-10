@@ -1,7 +1,7 @@
 "use client"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
-import { Search, Plane, Ship, Bus, ArrowLeftRight } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Search, Plane, Ship, Bus, ArrowLeftRight, ArrowRightToLine } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import LocationSelect from "@/components/search/LocationSelect"
 import DatePicker from "@/components/search/DatePicker"
@@ -9,15 +9,20 @@ import DatePicker from "@/components/search/DatePicker"
 type TripType = "round" | "oneway" | "multicity"
 type TransportType = "pesawat" | "bus" | "kapal"
 
-export default function SearchForm({ inline = true }: { inline?: boolean }) {
+export default function SearchForm({ inline = true, actionPath = "/results" }: { inline?: boolean; actionPath?: string }) {
   const router = useRouter()
   const params = useSearchParams()
-  const [from, setFrom] = useState(params.get("from") || "JFK")
-  const [to, setTo] = useState(params.get("to") || "LAX")
-  const [depart, setDepart] = useState(params.get("depart") || "")
+  const todayIso = () => {
+    const d = new Date()
+    const tz = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+    return tz.toISOString().split("T")[0]
+  }
+  const [from, setFrom] = useState(params.get("from") || "CGK")
+  const [to, setTo] = useState(params.get("to") || "DPS")
+  const [depart, setDepart] = useState(params.get("depart") || todayIso())
   const [returnDate, setReturnDate] = useState(params.get("return") || "")
   const [passengers, setPassengers] = useState(Number(params.get("pax") || 1))
-  const [trip, setTrip] = useState<TripType>((params.get("trip") as TripType) || "round")
+  const [trip, setTrip] = useState<TripType>((params.get("trip") as TripType) || "oneway")
   const [transport, setTransport] = useState<TransportType>((params.get("transport") as TransportType) || "pesawat")
 
   const onSubmit = (e: React.FormEvent) => {
@@ -25,12 +30,13 @@ export default function SearchForm({ inline = true }: { inline?: boolean }) {
     const usp = new URLSearchParams()
     usp.set("from", from)
     usp.set("to", to)
-    if (depart) usp.set("depart", depart)
+    const dep = depart || todayIso()
+    usp.set("depart", dep)
     if (trip === "round" && returnDate) usp.set("return", returnDate)
     usp.set("pax", String(passengers))
     usp.set("trip", trip)
     usp.set("transport", transport)
-    router.push(`/results?${usp.toString()}`)
+    router.push(`${actionPath}?${usp.toString()}`)
   }
 
   const swapLocations = () => {
@@ -147,8 +153,8 @@ export default function SearchForm({ inline = true }: { inline?: boolean }) {
 
           {/* Submit */}
           <div className="self-stretch flex items-center justify-start">
-            <Button type="submit" className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl w-full lg:w-auto">
-              <Search className="w-4 h-4 mr-2" /> Cari Tiket
+            <Button type="submit" className="bg-black hover:bg-gray-800 text-white py-3 rounded-xl w-full lg:w-auto">
+              <Search className="w-4 h-4" /> Cari Tiket
             </Button>
           </div>
         </form>

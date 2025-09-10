@@ -1,6 +1,6 @@
 import FlightCard from "@/components/results/FlightCard"
 import SearchForm from "@/components/search/SearchForm"
-import { mockFlights } from "@/lib/mockFlights"
+import { getMockFlights } from "@/lib/mockFlights"
 import AppHeader from "@/components/layout/AppHeader"
 
 import type { Metadata } from "next"
@@ -14,7 +14,7 @@ export default function ResultsPage({ searchParams }: { searchParams: { [key: st
   const to = (searchParams.to as string) || "LAX"
   const trip = (searchParams.trip as string) || "round"
 
-  const flights = mockFlights.filter((f) => f.from.includes(from) && f.to.includes(to))
+  const flights = getMockFlights().filter((f) => f.from.includes(from) && f.to.includes(to))
 
   return (
     <div className="min-h-screen bg-gray-50">
