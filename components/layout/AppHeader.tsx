@@ -34,7 +34,7 @@ export default function AppHeader({
       }
     >
       <div className={"max-w-7xl mx-auto px-3"}>
-        <div className={"flex items-center justify-between min-h-[60px] py-1"}>
+        <div className={"flex items-center justify-between min-h-[60px] py-1 gap-3"}>
         <div className="flex items-center gap-3">
           <Link href="/" className="relative h-12 w-[200px] flex items-center">
             <Image src="/logo-red-feng.png" alt="Red Feng" fill className="object-contain" sizes="200px" priority />
@@ -43,6 +43,25 @@ export default function AppHeader({
             <span className="text-lg font-semibold text-gray-900">{title}</span>
           ) : null}
         </div>
+
+        {/* Center nav (dummy links) */}
+        <nav className="hidden md:flex items-center gap-6">
+          {[
+            "Promo",
+            "Pesanan",
+            "Jadi Agen",
+            "Bantuan",
+            "Language",
+          ].map((item) => (
+            <span
+              key={item}
+              className="text-sm font-medium text-gray-700 hover:text-gray-900 cursor-default select-none"
+              aria-disabled="true"
+            >
+              {item}
+            </span>
+          ))}
+        </nav>
 
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>

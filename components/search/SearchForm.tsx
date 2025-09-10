@@ -18,7 +18,7 @@ export default function SearchForm({ inline = true }: { inline?: boolean }) {
   const [returnDate, setReturnDate] = useState(params.get("return") || "")
   const [passengers, setPassengers] = useState(Number(params.get("pax") || 1))
   const [trip, setTrip] = useState<TripType>((params.get("trip") as TripType) || "round")
-  const [transport, setTransport] = useState<TransportType>(((params.get("transport") as TransportType) === "tiket" ? "bus" : (params.get("transport") as TransportType)) || "pesawat")
+  const [transport, setTransport] = useState<TransportType>((params.get("transport") as TransportType) || "pesawat")
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()

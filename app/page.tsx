@@ -1,179 +1,142 @@
-import { Search } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import SearchForm from "@/components/search/SearchForm"
 import AppHeader from "@/components/layout/AppHeader"
-
-export default function FlightBookingPage() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <AppHeader title="" />
-
-      {/* Search Form (moved below header) */}
-      <section className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <SearchForm inline={false} />
-        </div>
-      </section>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {/* Filter Tabs */}
-        {/* <div className="flex items-center gap-4 mb-8">
-          <Button className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-full">Round trip</Button>
-          <Button variant="ghost" className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full">
-            One way
-          </Button>
-          <Button variant="ghost" className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full">
-            Multi-city
-          </Button>
-          <Button variant="ghost" className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full">
-            Stops: Any
-          </Button>
-          <Button variant="ghost" className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full">
-            Bags
-          </Button>
-          <Button variant="ghost" className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full">
-            Times
-          </Button>
-        </div> */}
-
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_20rem] gap-6 lg:gap-8 items-start">
-          {/* Flight Results */}
-          <div className="space-y-4">
-            {/* Delta Flight */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                <img src="/airplane-wing-sunset-view-from-window.jpg" alt="Flight view" className="w-full sm:w-40 h-36 sm:h-28 rounded-lg object-cover" />
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">Delta • DL 123</h3>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                      Best
-                    </Badge>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                      Refundable
-                    </Badge>
-                  </div>
-
-                  <div className="text-gray-600 mb-1">JFK 08:10 — LAX 11:25 • 6h 15m • Nonstop</div>
-
-                  <div className="text-gray-500 text-sm">Economy • Wi-Fi • Power</div>
-                </div>
-
-                <div className="sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">$289</div>
-                  <div className="text-sm text-gray-500 mb-4">per traveler</div>
-                  <Button className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full">Select</Button>
-                </div>
-              </div>
-            </div>
-
-            {/* United Flight */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                <img
-                  src="/airplane-interior-cabin-seats-aisle.jpg"
-                  alt="Flight interior"
-                  className="w-full sm:w-40 h-36 sm:h-28 rounded-lg object-cover"
-                />
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">United • UA 456</h3>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                      Shortest
-                    </Badge>
-                  </div>
-
-                  <div className="text-gray-600 mb-1">EWR 09:30 — LAX 12:45 • 6h 15m • Nonstop</div>
-
-                  <div className="text-gray-500 text-sm">Economy • Basic baggage</div>
-                </div>
-
-                <div className="sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">$279</div>
-                  <div className="text-sm text-gray-500 mb-4">per traveler</div>
-                  <Button className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full">Select</Button>
-                </div>
-              </div>
-            </div>
-
-            {/* JetBlue Flight */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                <img
-                  src="/airplane-exterior-wing-sky-clouds-sunset.jpg"
-                  alt="Flight exterior"
-                  className="w-full sm:w-40 h-36 sm:h-28 rounded-lg object-cover"
-                />
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">JetBlue • B6 789</h3>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                      More legroom
-                    </Badge>
-                  </div>
-
-                  <div className="text-gray-600 mb-1">JFK 10:20 — LAX 13:45 • 6h 25m • Nonstop</div>
-
-                  <div className="text-gray-500 text-sm">Even More Space • Wi-Fi</div>
-                </div>
-
-                <div className="sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">$315</div>
-                  <div className="text-sm text-gray-500 mb-4">per traveler</div>
-                  <Button className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full">Select</Button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Booking Sidebar */}
-          <div className="w-full lg:w-80">
-            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Book your flight</h2>
-
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between">
-                  <div>
-                    <div className="text-sm font-medium text-gray-700">FROM</div>
-                    <div className="text-gray-900">JFK New York</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-700">TO</div>
-                    <div className="text-gray-900">LAX Los Angeles</div>
-                  </div>
-                </div>
-
-                <div className="flex justify-between">
-                  <div>
-                    <div className="text-sm font-medium text-gray-700">DEPART</div>
-                    <div className="text-gray-500">Add date</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-700">RETURN</div>
-                    <div className="text-gray-500">Add date</div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-sm font-medium text-gray-700">PASSENGERS</div>
-                  <div className="text-gray-900">1 adult, Economy</div>
-                </div>
-              </div>
-
-              <Button className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded-full">Reserve flight</Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+import SearchForm from "@/components/search/SearchForm"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Flight",
+  title: "Home",
+}
+
+export default function HomePage() {
+  return (
+    <div className="min-h-screen bg-white">
+      <AppHeader />
+
+      {/* Hero with background image */}
+      <section
+        className="relative border-b"
+        style={{
+          backgroundImage: "url(/images/hero-flight-1.jpg)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
+          <div className="min-h-[420px] flex items-center justify-center">
+            <div className="max-w-7xl w-full text-center bg-white/40 rounded-xl p-6 sm:p-8">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900">
+                Temukan Tiket Terbaik untuk Perjalananmu
+              </h1>
+              <p className="mt-4 text-gray-900 text-base sm:text-lg">
+                Satu tempat untuk membandingkan penerbangan, bus, dan kapal. Hemat waktu, hemat biaya, tanpa ribet.
+              </p>
+
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <Link href="/flight">
+                  <Button className="bg-black hover:bg-gray-800 text-white rounded-full px-6">Mulai Booking</Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Floating SearchForm overlapping hero & highlights */}
+        <div className="hidden lg:block absolute -bottom-24 left-0 right-0">
+          <div className="max-w-7xl mx-auto px-6 flex justify-center">
+            <div className="w-full max-w-7xl drop-shadow-2xl">
+              <SearchForm inline={false} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile Search (non-floating) */}
+      <div className="lg:hidden -mt-6 px-6">
+        <div className="max-w-7xl mx-auto">
+          <SearchForm inline={false} />
+        </div>
+      </div>
+
+      {/* Highlights (add top padding to clear floating form) */}
+      <section className="max-w-7xl mx-auto px-6 pt-40 pb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[{
+            title: "Bandingkan Sekejap",
+            desc: "Harga real‑time dari ratusan maskapai & operator",
+          },{
+            title: "Harga Transparan",
+            desc: "Tanpa biaya tersembunyi, apa yang kamu lihat itu yang dibayar",
+          },{
+            title: "Bayar Sesukamu",
+            desc: "VA, kartu kredit, e‑wallet, cicilan",
+          },{
+            title: "Bantuan 24/7",
+            desc: "Tim support siap bantu kapan saja",
+          }].map((f) => (
+            <div key={f.title} className="rounded-2xl border border-gray-200 bg-white p-5">
+              <div className="text-lg font-semibold text-gray-900">{f.title}</div>
+              <div className="mt-1 text-gray-600 text-sm">{f.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Popular routes */}
+      <section className="max-w-7xl mx-auto px-6 pb-16">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Rute Populer</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {["Jakarta – Bali", "Jakarta – Singapore", "Surabaya – Jakarta", "Medan – Jakarta", "Jakarta – Yogyakarta", "Bali – Labuan Bajo"].map((r) => (
+            <Link key={r} href="/flight" className="group rounded-xl border border-gray-200 bg-white p-4 hover:shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-900 font-medium">{r}</span>
+                <span className="text-sm text-gray-500 group-hover:text-gray-700">Cek tiket →</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Partners */}
+      <section className="max-w-7xl mx-auto px-6 pb-16">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Partner Kami</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex items-center justify-center rounded-xl border border-gray-200 bg-white p-4">
+              <img src="/placeholder-logo.png" alt="Partner logo" className="h-10 w-auto opacity-80" />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="max-w-7xl mx-auto px-6 pb-24">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Apa kata mereka</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            {
+              name: "Nadia",
+              text: "Checkout cepat, harga bersaing. Sudah jadi andalan tiap dinas!",
+            },
+            {
+              name: "Rizky",
+              text: "Suka banget fitur bandingkan rutenya. Hemat waktu banget.",
+            },
+            {
+              name: "Ayu",
+              text: "Support responsif. Perubahan jadwal diurus sampai tuntas.",
+            },
+          ].map((t) => (
+            <div key={t.name} className="rounded-2xl border border-gray-200 bg-white p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <img src="/placeholder-user.jpg" alt={t.name} className="h-10 w-10 rounded-full object-cover" />
+                <div className="font-medium text-gray-900">{t.name}</div>
+              </div>
+              <p className="text-gray-700">{t.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  )
 }
