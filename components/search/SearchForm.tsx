@@ -55,7 +55,7 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
             role="tab"
             aria-selected={transport === "pesawat"}
             onClick={() => setTransport("pesawat")}
-            className={(transport === "pesawat" ? "bg-black text-white" : "text-gray-700 hover:text-gray-900") + " rounded-full px-3 py-1.5 text-sm font-medium inline-flex items-center gap-2"}
+            className={(transport === "pesawat" ? "bg-primary text-primary-foreground" : "text-gray-700 hover:text-gray-900") + " rounded-full px-3 py-1.5 text-sm font-medium inline-flex items-center gap-2"}
           >
             <Plane className="w-4 h-4" /> Pesawat
           </button>
@@ -64,7 +64,7 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
             role="tab"
             aria-selected={transport === "bus"}
             onClick={() => setTransport("bus")}
-            className={(transport === "bus" ? "bg-black text-white" : "text-gray-700 hover:text-gray-900") + " rounded-full px-3 py-1.5 text-sm font-medium inline-flex items-center gap-2"}
+            className={(transport === "bus" ? "bg-primary text-primary-foreground" : "text-gray-700 hover:text-gray-900") + " rounded-full px-3 py-1.5 text-sm font-medium inline-flex items-center gap-2"}
           >
             <Bus className="w-4 h-4" /> Bus
           </button>
@@ -73,7 +73,7 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
             role="tab"
             aria-selected={transport === "kapal"}
             onClick={() => setTransport("kapal")}
-            className={(transport === "kapal" ? "bg-black text-white" : "text-gray-700 hover:text-gray-900") + " rounded-full px-3 py-1.5 text-sm font-medium inline-flex items-center gap-2"}
+            className={(transport === "kapal" ? "bg-primary text-primary-foreground" : "text-gray-700 hover:text-gray-900") + " rounded-full px-3 py-1.5 text-sm font-medium inline-flex items-center gap-2"}
           >
             <Ship className="w-4 h-4" /> Kapal
           </button>
@@ -91,13 +91,13 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
         <div className="flex items-center gap-6 mb-4 text-sm">
           <label className="inline-flex items-center gap-2 cursor-pointer">
             <span className={trip === "oneway" ? "text-black" : "text-gray-700"}>
-              <input type="radio" name="trip" className="accent-black" checked={trip === "oneway"} onChange={() => setTrip("oneway")} />
+              <input type="radio" name="trip" className="accent-[#ff6347]" checked={trip === "oneway"} onChange={() => setTrip("oneway")} />
               <span className="ml-2">Sekali jalan</span>
             </span>
           </label>
           <label className="inline-flex items-center gap-2 cursor-pointer">
             <span className={trip === "round" ? "text-black" : "text-gray-700"}>
-              <input type="radio" name="trip" className="accent-black" checked={trip === "round"} onChange={() => setTrip("round")} />
+              <input type="radio" name="trip" className="accent-[#ff6347]" checked={trip === "round"} onChange={() => setTrip("round")} />
               <span className="ml-2">Pulang-pergi</span>
             </span>
           </label>
@@ -153,7 +153,7 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
 
           {/* Submit */}
           <div className="self-stretch flex items-center justify-start">
-            <Button type="submit" className="bg-black hover:bg-gray-800 text-white py-3 rounded-xl w-full lg:w-auto">
+            <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-xl w-full lg:w-auto">
               <Search className="w-4 h-4" /> Cari Tiket
             </Button>
           </div>

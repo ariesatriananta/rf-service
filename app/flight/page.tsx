@@ -167,7 +167,7 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
                     </div>
                   </div>
 
-                  <Button className="w-full bg-black hover:bg-gray-800 text-white py-5 text-md rounded-full">Booking Sekarang</Button>
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-5 text-md rounded-full">Booking Sekarang</Button>
                 </>
               )}
             </div>

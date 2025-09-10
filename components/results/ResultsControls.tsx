@@ -57,7 +57,7 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
               key={s.key}
               size="sm"
               variant={currentSort === (s.key as SortKey) ? "default" : "outline"}
-              className={currentSort === (s.key as SortKey) ? "bg-black text-white" : ""}
+              className={(currentSort === (s.key as SortKey) ? "hover:bg-primary" : "hover:bg-background hover:text-inherit") + " transition-none"}
               onClick={() => updateParam("sort", s.key)}
             >
               {s.label}
@@ -82,7 +82,7 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
                     name="stops"
                     checked={stops === o.v}
                     onChange={() => updateParam("stops", o.v)}
-                    className="accent-black"
+                    className="accent-[#ff6347]"
                   />
                   <span>{o.label}</span>
                 </label>
@@ -130,7 +130,7 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
                   className={
                     "px-3 py-1.5 rounded-full text-sm border " +
                     (selectedAirlines.has(a)
-                      ? "bg-black text-white border-black"
+                      ? "bg-primary text-primary-foreground border-primary"
                       : "bg-white text-gray-900 border-gray-200 hover:bg-gray-50")
                   }
                 >
@@ -144,4 +144,3 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
     </div>
   )
 }
-

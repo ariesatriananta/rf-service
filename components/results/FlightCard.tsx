@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import { Ticket, Utensils, Briefcase, BriefcaseBusiness, Wifi, BriefcaseConveyorBelt, BriefcaseConveyorBeltIcon, BriefcaseIcon, LuggageIcon } from "lucide-react"
+import { Ticket, Utensils, Briefcase, BriefcaseBusiness, Wifi, BriefcaseConveyorBelt, BriefcaseConveyorBeltIcon, BriefcaseIcon, LuggageIcon, Clock } from "lucide-react"
 
 export type Flight = {
   id: string
@@ -42,8 +42,14 @@ export default function FlightCard({ flight, className }: { flight: Flight; clas
               </span>
             ))}
           </div>
-          <div className="text-gray-600 mb-1">
-            {flight.from} {flight.departTime} – {flight.to} {flight.arriveTime} • {flight.duration} • {flight.stops === 0 ? "Langsung" : "Transit"}
+          <div className="text-gray-600 text-sm mb-1">
+            {flight.from} {flight.departTime} – {flight.to} {flight.arriveTime}
+            &nbsp; • &nbsp;
+            <span className="inline-flex items-center gap-1.5 text-slate-600">
+               <Clock className="w-3 h-3 relative top-[0px]" strokeWidth={1.75} />{flight.duration}
+            </span>
+            &nbsp; • &nbsp;
+            {flight.stops === 0 ? "Langsung" : "Transit"}
           </div>
           <div className="text-gray-500 text-sm inline-flex items-center gap-3 flex-wrap">
 
@@ -64,9 +70,9 @@ export default function FlightCard({ flight, className }: { flight: Flight; clas
           </div>
         </div>
         <div className="sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
-          <div className="text-2xl font-bold text-gray-900 mb-1">{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(flight.price)}</div>
+          <div className="text-lg font-bold text-[#d6190d]">{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(flight.price)}</div>
           <div className="text-sm text-gray-500 mb-4">per pax</div>
-          <button className="bg-black hover:bg-gray-800 text-white px-6 py-1 rounded-sm w-full sm:w-auto">Pilih</button>
+          <button className="bg-primary text-sm hover:bg-primary/90 text-primary-foreground px-6 py-1 rounded-sm w-full sm:w-auto">Pilih</button>
         </div>
       </div>
     </div>
