@@ -1,87 +1,24 @@
-import { Search, User } from "lucide-react"
+import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import SearchForm from "@/components/search/SearchForm"
+import AppHeader from "@/components/layout/AppHeader"
 
 export default function FlightBookingPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-              <div className="w-4 h-4 border-2 border-white rounded-full"></div>
-            </div>
-            <span className="text-xl font-semibold text-gray-900">Rentals</span>
-          </div>
+      <AppHeader title="" />
 
-          {/* Search Form */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col">
-                <label className="text-sm font-medium text-gray-700">From</label>
-                <input
-                  type="text"
-                  placeholder="City or Airport"
-                  className="text-sm text-gray-500 bg-transparent border-none outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col">
-                <label className="text-sm font-medium text-gray-700">To</label>
-                <input
-                  type="text"
-                  placeholder="City or Airport"
-                  className="text-sm text-gray-500 bg-transparent border-none outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col">
-                <label className="text-sm font-medium text-gray-700">Dates</label>
-                <input
-                  type="text"
-                  placeholder="Add dates"
-                  className="text-sm text-gray-500 bg-transparent border-none outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col">
-                <label className="text-sm font-medium text-gray-700">Passengers</label>
-                <input
-                  type="text"
-                  placeholder="1 traveler"
-                  className="text-sm text-gray-500 bg-transparent border-none outline-none"
-                />
-              </div>
-            </div>
-
-            <Button className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full">
-              <Search className="w-4 h-4 mr-2" />
-              Search
-            </Button>
-          </div>
-
-          {/* User Avatar */}
-          <Avatar className="w-10 h-10">
-            <AvatarImage src="/diverse-user-avatars.png" />
-            <AvatarFallback>
-              <User className="w-5 h-5" />
-            </AvatarFallback>
-          </Avatar>
+      {/* Search Form (moved below header) */}
+      <section className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <SearchForm inline={false} />
         </div>
-      </header>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {/* Filter Tabs */}
-        <div className="flex items-center gap-4 mb-8">
+        {/* <div className="flex items-center gap-4 mb-8">
           <Button className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-full">Round trip</Button>
           <Button variant="ghost" className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full">
             One way
@@ -98,15 +35,15 @@ export default function FlightBookingPage() {
           <Button variant="ghost" className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-full">
             Times
           </Button>
-        </div>
+        </div> */}
 
-        <div className="flex gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_20rem] gap-6 lg:gap-8 items-start">
           {/* Flight Results */}
-          <div className="flex-1 space-y-4">
+          <div className="space-y-4">
             {/* Delta Flight */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center gap-6">
-                <img src="/airplane-wing-sunset-view-from-window.jpg" alt="Flight view" className="w-40 h-30 rounded-lg object-cover" />
+            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                <img src="/airplane-wing-sunset-view-from-window.jpg" alt="Flight view" className="w-full sm:w-40 h-36 sm:h-28 rounded-lg object-cover" />
 
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -124,7 +61,7 @@ export default function FlightBookingPage() {
                   <div className="text-gray-500 text-sm">Economy • Wi-Fi • Power</div>
                 </div>
 
-                <div className="text-right">
+                <div className="sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
                   <div className="text-2xl font-bold text-gray-900 mb-1">$289</div>
                   <div className="text-sm text-gray-500 mb-4">per traveler</div>
                   <Button className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full">Select</Button>
@@ -133,12 +70,12 @@ export default function FlightBookingPage() {
             </div>
 
             {/* United Flight */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center gap-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <img
                   src="/airplane-interior-cabin-seats-aisle.jpg"
                   alt="Flight interior"
-                  className="w-40 h-30 rounded-lg object-cover"
+                  className="w-full sm:w-40 h-36 sm:h-28 rounded-lg object-cover"
                 />
 
                 <div className="flex-1">
@@ -154,7 +91,7 @@ export default function FlightBookingPage() {
                   <div className="text-gray-500 text-sm">Economy • Basic baggage</div>
                 </div>
 
-                <div className="text-right">
+                <div className="sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
                   <div className="text-2xl font-bold text-gray-900 mb-1">$279</div>
                   <div className="text-sm text-gray-500 mb-4">per traveler</div>
                   <Button className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full">Select</Button>
@@ -163,12 +100,12 @@ export default function FlightBookingPage() {
             </div>
 
             {/* JetBlue Flight */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center gap-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <img
                   src="/airplane-exterior-wing-sky-clouds-sunset.jpg"
                   alt="Flight exterior"
-                  className="w-40 h-30 rounded-lg object-cover"
+                  className="w-full sm:w-40 h-36 sm:h-28 rounded-lg object-cover"
                 />
 
                 <div className="flex-1">
@@ -184,7 +121,7 @@ export default function FlightBookingPage() {
                   <div className="text-gray-500 text-sm">Even More Space • Wi-Fi</div>
                 </div>
 
-                <div className="text-right">
+                <div className="sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
                   <div className="text-2xl font-bold text-gray-900 mb-1">$315</div>
                   <div className="text-sm text-gray-500 mb-4">per traveler</div>
                   <Button className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-full">Select</Button>
@@ -194,8 +131,8 @@ export default function FlightBookingPage() {
           </div>
 
           {/* Booking Sidebar */}
-          <div className="w-80">
-            <div className="bg-white rounded-lg border border-gray-200 p-6 sticky top-6">
+          <div className="w-full lg:w-80">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Book your flight</h2>
 
               <div className="space-y-4 mb-6">
@@ -234,4 +171,9 @@ export default function FlightBookingPage() {
       </div>
     </div>
   )
+}
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Flight",
 }
