@@ -1,7 +1,7 @@
 "use client"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
-import { Search, Plane, Ship, Bus, ArrowLeftRight, ArrowRightToLine } from "lucide-react"
+import { useEffect, useRef, useState, useTransition } from "react"
+import { Search, Plane, Ship, Bus, ArrowLeftRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import LocationSelect from "@/components/search/LocationSelect"
 import DatePicker from "@/components/search/DatePicker"
@@ -12,6 +12,7 @@ type TransportType = "pesawat" | "bus" | "kapal"
 export default function SearchForm({ inline = true, actionPath = "/results" }: { inline?: boolean; actionPath?: string }) {
   const router = useRouter()
   const params = useSearchParams()
+  const [isPending, startTransition] = useTransition()
   const todayIso = () => {
     const d = new Date()
     const tz = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
@@ -36,7 +37,9 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
     usp.set("pax", String(passengers))
     usp.set("trip", trip)
     usp.set("transport", transport)
-    router.push(`${actionPath}?${usp.toString()}`)
+    startTransition(() => {
+      router.push(`${actionPath}?${usp.toString()}`)
+    })
   }
 
   const swapLocations = () => {
@@ -153,8 +156,18 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
 
           {/* Submit */}
           <div className="self-stretch flex items-center justify-start">
-            <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-xl w-full lg:w-auto">
-              <Search className="w-4 h-4" /> Cari Tiket
+            <Button
+              type="submit"
+              disabled={isPending}
+              aria-busy={isPending}
+              className="bg-primary hover:bg-primary/90 disabled:opacity-80 disabled:cursor-not-allowed text-primary-foreground py-3 rounded-xl w-full lg:w-auto inline-flex items-center gap-2"
+            >
+              {isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Search className="w-4 h-4" />
+              )}
+              Cari Tiket
             </Button>
           </div>
         </form>

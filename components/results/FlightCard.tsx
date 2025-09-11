@@ -20,7 +20,7 @@ export type Flight = {
 
 export default function FlightCard({ flight, className }: { flight: Flight; className?: string }) {
   return (
-    <div className={cn("bg-white rounded-lg border border-gray-200 p-4 sm:p-6", className)}>
+    <div className={cn("bg-white rounded-lg border border-gray-200 p-4 sm:p-6 shadow-sm", className)}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
         {flight.logo ? (
           <div className="w-full sm:w-40 h-36 sm:h-28 rounded-lg bg-white border border-gray-100 flex items-center justify-center">

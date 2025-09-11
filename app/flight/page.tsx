@@ -4,8 +4,11 @@ import AppHeader from "@/components/layout/AppHeader"
 import QuerySummary from "@/components/results/QuerySummary"
 import ResultsControls from "@/components/results/ResultsControls"
 import FlightCard from "@/components/results/FlightCard"
+import FlightResults from "@/components/results/FlightResults"
+import FlightResultsSkeleton from "@/components/results/FlightResultsSkeleton"
 import { getMockFlights } from "@/lib/mockFlights"
 import type { Metadata } from "next"
+import { Suspense } from "react"
 
 export const metadata: Metadata = {
   title: "Flight",
@@ -19,6 +22,12 @@ type SearchParams = {
   pax?: string
   trip?: "round" | "oneway" | "multicity"
   transport?: "pesawat" | "bus" | "kapal"
+  // Filters & sorting from query string
+  stops?: "any" | "nonstop" | "transit"
+  sort?: "price" | "duration" | "depart-asc" | "depart-desc" | "arrive-asc" | "arrive-desc"
+  airline?: string
+  price_min?: string
+  price_max?: string
 }
 
 export default function FlightBookingPage({ searchParams }: { searchParams: SearchParams }) {
@@ -51,7 +60,7 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
   const qSort = (searchParams.sort as string) || "price"
   const qAirline = (searchParams.airline as string) || ""
   const qPriceMin = Number(searchParams.price_min || 0)
-  const qPriceMax = Number(searchParams.price_max || 1000000)
+  const qPriceMax = Number(searchParams.price_max || 5000000)
 
   const flightsData = getMockFlights()
   const airlinesAll = Array.from(new Set(flightsData.map((f) => f.airline)))
@@ -76,7 +85,7 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
         )} */}
 
         {/* Sorting & Filters */}
-        <ResultsControls airlines={airlinesAll} priceMaxDefault={1000000} />
+        <ResultsControls airlines={airlinesAll} priceMaxDefault={3000000} />
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_20rem] gap-6 lg:gap-8 items-start">
           {/* Flight Results */}
@@ -86,53 +95,19 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
                 Tidak ditemukan data
               </div>
             ) : (
-              (() => {
-                let flights = flightsData.filter(
-                  (f) => f.from.includes(from as string) && f.to.includes(to as string)
-                )
-                // filter by date
-                if (depart) flights = flights.filter((f) => f.departDate === depart)
-                // filter stops
-                if (qStops === "nonstop") flights = flights.filter((f) => f.stops === 0)
-                else if (qStops === "transit") flights = flights.filter((f) => f.stops > 0)
-                // filter airline
-                if (qAirline) {
-                  const allow = new Set(qAirline.split(",").filter(Boolean))
-                  flights = flights.filter((f) => allow.has(f.airline))
-                }
-                // filter price
-                flights = flights.filter((f) => f.price >= qPriceMin && f.price <= qPriceMax)
-                // sort
-                flights = [...flights].sort((a, b) => {
-                  if (qSort === "price") return a.price - b.price
-                  if (qSort === "duration") return parseMinutes(a.duration) - parseMinutes(b.duration)
-                  if (qSort === "depart-asc") return parseMinutes(a.departTime) - parseMinutes(b.departTime)
-                  if (qSort === "depart-desc") return parseMinutes(b.departTime) - parseMinutes(a.departTime)
-                  if (qSort === "arrive-asc") return parseMinutes(a.arriveTime) - parseMinutes(b.arriveTime)
-                  if (qSort === "arrive-desc") return parseMinutes(b.arriveTime) - parseMinutes(a.arriveTime)
-                  return 0
-                })
-                if (flights.length === 0)
-                  return (
-                    <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-600">
-                      Tidak ada hasil untuk rute ini (mock data).
-                    </div>
-                  )
-                return (
-                  <div className="grid gap-4">
-                    {flights.map((f) => (
-                      <FlightCard key={f.id} flight={f} />
-                    ))}
-                  </div>
-                )
-              })()
+              <Suspense
+                key={JSON.stringify({ from, to, depart, ret, qStops, qSort, qAirline, qPriceMin, qPriceMax })}
+                fallback={<FlightResultsSkeleton />}
+              >
+                <FlightResults searchParams={searchParams} />
+              </Suspense>
             )}
           </div>
 
           {/* Booking Sidebar */}
-          <div className="w-full lg:w-80">
+          <div className="w-full lg:w-80 shadow-sm">
             <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Book your flight</h2>
+              <h2 className="text-lg font-semibold  mb-6 text-primary">Penerbangan Anda</h2>
 
               {!hasQuery ? (
                 <div className="text-gray-600">Tidak ditemukan data</div>

@@ -1,7 +1,8 @@
 "use client"
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import * as Slider from "@radix-ui/react-slider"
 
 type SortKey = "price" | "duration" | "depart-asc" | "depart-desc" | "arrive-asc" | "arrive-desc"
 
@@ -19,7 +20,7 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
     const usp = new URLSearchParams(params.toString())
     if (value === undefined || value === "") usp.delete(key)
     else usp.set(key, value)
-    router.push(`/flight?${usp.toString()}`)
+    router.replace(`/flight?${usp.toString()}` , { scroll: false })
   }
 
   const toggleAirline = (name: string) => {
@@ -39,8 +40,18 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
     updateParam("price_max", String(max))
   }
 
+  // debounce timer for applying after drag
+  const applyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const scheduleCommit = () => {
+    if (applyTimer.current) clearTimeout(applyTimer.current)
+    applyTimer.current = setTimeout(() => {
+      commitPrice()
+    }, 800)
+  }
+  useEffect(() => () => { if (applyTimer.current) clearTimeout(applyTimer.current) }, [])
+
   return (
-    <div className="mb-4 rounded-xl border border-gray-200 bg-white p-3 sm:p-4">
+    <div className="mb-4 rounded-xl border border-gray-200 bg-white p-3 sm:p-4 shadow-sm">
       <div className="flex flex-col gap-4">
         {/* Sorting */}
         <div className="flex flex-wrap items-center gap-2">
@@ -57,7 +68,9 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
               key={s.key}
               size="sm"
               variant={currentSort === (s.key as SortKey) ? "default" : "outline"}
-              className={(currentSort === (s.key as SortKey) ? "hover:bg-primary" : "hover:bg-background hover:text-inherit") + " transition-none"}
+              className={(currentSort === (s.key as SortKey) ?
+                "hover:bg-primary" :
+                "hover:bg-background hover:text-primary hover:border-primary cursor-pointer ") + " transition-none"}
               onClick={() => updateParam("sort", s.key)}
             >
               {s.label}
@@ -90,33 +103,33 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
             </div>
           </div>
 
-          {/* Price range */}
+          {/* Price range - single slider with two thumbs */}
           <div className="rounded-lg border border-gray-200 p-3">
             <div className="text-sm font-medium text-gray-900 mb-2">Harga</div>
             <div className="flex items-center gap-3">
-              <input
-                type="range"
-                min={0}
-                max={priceMaxDefault}
-                step={10000}
-                value={localMin}
-                onChange={(e) => setLocalMin(Number(e.target.value))}
-                className="w-full"
-              />
-              <input
-                type="range"
-                min={0}
-                max={priceMaxDefault}
-                step={10000}
-                value={localMax}
-                onChange={(e) => setLocalMax(Number(e.target.value))}
-                className="w-full"
-              />
-              <Button size="sm" variant="outline" onClick={commitPrice}>
-                Terapkan
-              </Button>
+              <div className="flex-1">
+                <Slider.Root
+                  className="relative flex items-center select-none touch-none w-full h-6"
+                  min={0}
+                  max={priceMaxDefault}
+                  step={10000}
+                  value={[localMin, localMax]}
+                  onValueChange={(vals) => {
+                    const [mn, mx] = vals as number[]
+                    setLocalMin(mn)
+                    setLocalMax(mx)
+                  }}
+                  onValueCommit={scheduleCommit}
+                >
+                  <Slider.Track className="bg-gray-200 relative grow rounded-full h-1.5">
+                    <Slider.Range className="absolute bg-primary h-1.5 rounded-full" />
+                  </Slider.Track>
+                  <Slider.Thumb className="block w-4 h-4 rounded-full bg-white border border-gray-300 shadow focus:outline-none" aria-label="Minimum price" />
+                  <Slider.Thumb className="block w-4 h-4 rounded-full bg-white border border-gray-300 shadow focus:outline-none" aria-label="Maximum price" />
+                </Slider.Root>
+              </div>
             </div>
-            <div className="mt-2 text-sm text-gray-600">Rp {localMin.toLocaleString()} – Rp {localMax.toLocaleString()}</div>
+            <div className="mt-2 text-sm text-gray-600">Rp {localMin.toLocaleString()} - Rp {localMax.toLocaleString()}</div>
           </div>
 
           {/* Airlines */}
@@ -130,8 +143,8 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
                   className={
                     "px-3 py-1.5 rounded-full text-sm border " +
                     (selectedAirlines.has(a)
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-white text-gray-900 border-gray-200 hover:bg-gray-50")
+                      ? "border-primary text-primary cursor-pointer"
+                      : "bg-white text-gray-900 border-gray-200 hover:border-primary hover:text-primary hover:bg-background cursor-pointer")
                   }
                 >
                   {a}
