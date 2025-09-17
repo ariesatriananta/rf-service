@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button"
 import SearchForm from "@/components/search/SearchForm"
 import AppHeader from "@/components/layout/AppHeader"
 import QuerySummary from "@/components/results/QuerySummary"
@@ -9,6 +8,7 @@ import FlightResultsSkeleton from "@/components/results/FlightResultsSkeleton"
 import { getMockFlights } from "@/lib/mockFlights"
 import type { Metadata } from "next"
 import { Suspense } from "react"
+import { Plane } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Flight",
@@ -38,6 +38,8 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
   const depart = searchParams.depart
   const ret = searchParams.return
   const transport = searchParams.transport || "pesawat"
+  const tripLabel = trip === "round" ? "Pulang-Pergi" : trip === "oneway" ? "Sekali Jalan" : "Multi-kota"
+  const transportLabel = transport === "pesawat" ? "Pesawat" : transport === "bus" ? "Bus" : "Kapal"
 
   const formatDate = (v?: string) =>
     v ? new Date(v).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : undefined
@@ -105,50 +107,61 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
           </div>
 
           {/* Booking Sidebar */}
-          <div className="w-full lg:w-80 shadow-sm">
-            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-6">
-              <h2 className="text-lg font-semibold  mb-6 text-primary">Penerbangan Anda</h2>
+          <div className="w-full lg:w-80">
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-6 space-y-5">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Ringkasan Pencarian</h2>
+                <p className="text-sm text-gray-500">Pastikan detail perjalanan Anda sudah sesuai.</p>
+              </div>
 
               {!hasQuery ? (
-                <div className="text-gray-600">Tidak ditemukan data</div>
+                <div className="text-gray-600">Belum ada rute yang dipilih.</div>
               ) : (
-                <>
-                  <div className="space-y-4 mb-6">
-                    <div className="flex justify-between">
-                      <div>
-                        <div className="text-sm text-gray-600 mr-2">Dari</div>
-                        <div className="text-gray-900">{from}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm text-gray-600 mr-2">Ke</div>
-                        <div className="text-gray-900">{to}</div>
-                      </div>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl border border-gray-200 bg-primary/10 flex items-center justify-center">
+                      <Plane className="w-5 h-5 text-primary" />
                     </div>
-
-                    <div className="flex justify-between">
-                      <div>
-                        <div className="text-sm font-medium text-gray-700">Pergi</div>
-                        <div className="text-gray-900">{formatDate(depart) || "—"}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-medium text-gray-700">Kembali</div>
-                        <div className="text-gray-900">{trip === "round" ? (formatDate(ret) || "—") : "—"}</div>
-                      </div>
-                    </div>
-
                     <div>
-                      <div className="text-sm font-medium text-gray-700">Passengers</div>
-                      <div className="text-gray-900">{pax} {pax > 1 ? "penumpang" : "penumpang"}</div>
+                      <div className="text-sm text-gray-500 uppercase tracking-wide">Rute</div>
+                      <div className="text-base font-semibold text-gray-900">{from || "-"} → {to || "-"}</div>
+                      <div className="text-xs text-gray-500">{tripLabel} • {transportLabel}</div>
                     </div>
                   </div>
 
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-5 text-md rounded-full">Booking Sekarang</Button>
-                </>
+                  <div className="rounded-lg border border-gray-100 bg-gray-50/70 p-3 space-y-2 text-sm">
+                    <SummaryRow label="Tanggal Pergi" value={formatDate(depart) || "-"} />
+                    <SummaryRow
+                      label="Tanggal Pulang"
+                      value={trip === "round" ? (formatDate(ret) || "-") : tripLabel}
+                    />
+                    <SummaryRow label="Penumpang" value={`${pax} orang`} />
+                    <SummaryRow label="Transport" value={transportLabel} />
+                  </div>
+
+                  <div>
+                    <a
+                      href="#flight-searchForm"
+                      className="inline-flex w-full justify-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+                    >
+                      Ubah pencarian
+                    </a>
+                  </div>
+                </div>
               )}
             </div>
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="text-xs uppercase tracking-wide text-gray-500">{label}</span>
+      <span className="text-sm font-medium text-gray-900 text-right">{value}</span>
     </div>
   )
 }

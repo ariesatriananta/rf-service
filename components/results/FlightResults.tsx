@@ -86,9 +86,20 @@ export default async function FlightResults({ searchParams }: { searchParams: Se
   return (
     <div className="grid gap-4">
       {flights.map((f) => (
-        <FlightCard key={f.id} flight={f} />
+        <FlightCard
+          key={f.id}
+          flight={f}
+          queryContext={{
+            from,
+            to,
+            depart,
+            returnDate: searchParams.return,
+            pax: Number(searchParams.pax || 1),
+            trip: searchParams.trip,
+            transport: searchParams.transport,
+          }}
+        />
       ))}
     </div>
   )
 }
-

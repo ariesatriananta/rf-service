@@ -89,13 +89,13 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
                 { v: "nonstop", label: "Langsung" },
                 { v: "transit", label: "Transit" },
               ].map((o) => (
-                <label key={o.v} className="inline-flex items-center gap-2 text-sm">
+                <label key={o.v} className="inline-flex items-center gap-2 text-sm cursor-pointer">
                   <input
                     type="radio"
                     name="stops"
                     checked={stops === o.v}
                     onChange={() => updateParam("stops", o.v)}
-                    className="accent-[#ff6347]"
+                    className="accent-[#ff6347] cursor-pointer"
                   />
                   <span>{o.label}</span>
                 </label>
@@ -121,11 +121,11 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
                   }}
                   onValueCommit={scheduleCommit}
                 >
-                  <Slider.Track className="bg-gray-200 relative grow rounded-full h-1.5">
+                  <Slider.Track className="bg-gray-200 relative grow rounded-full h-1.5 cursor-pointer">
                     <Slider.Range className="absolute bg-primary h-1.5 rounded-full" />
                   </Slider.Track>
-                  <Slider.Thumb className="block w-4 h-4 rounded-full bg-white border border-gray-300 shadow focus:outline-none" aria-label="Minimum price" />
-                  <Slider.Thumb className="block w-4 h-4 rounded-full bg-white border border-gray-300 shadow focus:outline-none" aria-label="Maximum price" />
+                  <Slider.Thumb className="block w-4 h-4 rounded-full bg-white border border-gray-300 shadow focus:outline-none cursor-pointer" aria-label="Minimum price" />
+                  <Slider.Thumb className="block w-4 h-4 rounded-full bg-white border border-gray-300 shadow focus:outline-none cursor-pointer" aria-label="Maximum price" />
                 </Slider.Root>
               </div>
             </div>

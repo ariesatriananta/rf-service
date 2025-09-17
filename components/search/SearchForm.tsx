@@ -1,6 +1,6 @@
 "use client"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useRef, useState, useTransition } from "react"
+import { useState, useTransition } from "react"
 import { Search, Plane, Ship, Bus, ArrowLeftRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import LocationSelect from "@/components/search/LocationSelect"
@@ -116,7 +116,7 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
               type="button"
               onClick={swapLocations}
               aria-label="Tukar lokasi asal dan tujuan"
-              className="flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-white border border-gray-200 shadow hover:bg-gray-50"
+              className="flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-white border border-gray-200 shadow hover:bg-gray-50 cursor-pointer"
             >
               <ArrowLeftRight className="w-4 h-4 text-gray-700" />
             </button>
@@ -135,22 +135,17 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
             />
           )}
 
-          {/* Pax & class */}
+          {/* Pax only (class moved to card accordion) */}
           <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
-            <div className="text-xs text-gray-500 mb-1">Penumpang, Kelas</div>
+            <div className="text-xs text-gray-500 mb-1">Penumpang</div>
             <div className="flex items-center gap-2">
               <input
                 type="number"
                 min={1}
                 value={passengers}
                 onChange={(e) => setPassengers(Number(e.target.value))}
-                className="w-16 bg-transparent text-sm text-gray-900 focus:outline-none"
+                className="w-20 bg-transparent text-sm text-gray-900 focus:outline-none"
               />
-              <select className="bg-transparent text-sm text-gray-900 focus:outline-none">
-                <option>Ekonomi</option>
-                <option>Bisnis</option>
-                <option>First</option>
-              </select>
             </div>
           </div>
 
@@ -160,7 +155,7 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
               type="submit"
               disabled={isPending}
               aria-busy={isPending}
-              className="bg-primary hover:bg-primary/90 disabled:opacity-80 disabled:cursor-not-allowed text-primary-foreground py-3 rounded-xl w-full lg:w-auto inline-flex items-center gap-2"
+              className="bg-primary hover:bg-primary/90 disabled:opacity-80 disabled:cursor-not-allowed text-primary-foreground py-3 rounded-xl w-full lg:w-auto inline-flex items-center gap-2 cursor-pointer"
             >
               {isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

@@ -1,3 +1,13 @@
+export type FlightClassOption = {
+  type: "Economy" | "Bisnis"
+  price: number
+  fare?: string
+  subtitle?: string
+  perks: string[]
+  rescheduleFee?: number
+  refundableUpTo?: number // percentage
+}
+
 export type Flight = {
   id: string
   airline: string
@@ -15,6 +25,7 @@ export type Flight = {
   logo?: string
   departDate?: string // yyyy-MM-dd
   classType?: "Economy" | "Bisnis"
+  classes?: FlightClassOption[]
 }
 
 const baseFlights: (Omit<Flight, "departDate"> & { offset?: number })[] = [
@@ -56,8 +67,46 @@ const toIso = (d: Date) => {
 
 export function getMockFlights(): Flight[] {
   const today = new Date()
-  return baseFlights.map((f) => ({
-    ...f,
-    departDate: toIso(new Date(today.getFullYear(), today.getMonth(), today.getDate() + (f.offset || 0))),
-  }))
+  return baseFlights.map((f) => {
+    const departDate = toIso(new Date(today.getFullYear(), today.getMonth(), today.getDate() + (f.offset || 0)))
+    // Build class variants: ensure both Economy and Bisnis exist
+    const basePrice = f.price
+    const econ: FlightClassOption = {
+      type: "Economy",
+      price: f.classType === "Economy" ? basePrice : Math.max(Math.round(basePrice * 0.7), 300000),
+      fare: /Meal|Bagasi|Hand|Basic|Snack/i.test(f.fare) ? f.fare : "Bagasi",
+      subtitle: "Bagasi+",
+      perks: [
+        "Bagasi kabin 7 kg",
+        "Bagasi 20 kg",
+        "Kursi standar (jarak 29 inci)",
+        "Tata kursi 3-3",
+      ],
+      rescheduleFee: 485200,
+      refundableUpTo: 50,
+    }
+    const bisnis: FlightClassOption = {
+      type: "Bisnis",
+      price: f.classType === "Bisnis" ? basePrice : Math.max(Math.round(basePrice * 1.6), basePrice + 300000),
+      fare: "Meal • Bagasi 30kg",
+      subtitle: "Premium",
+      perks: [
+        "Bagasi kabin 10 kg",
+        "Bagasi 30 kg",
+        "Kursi prioritas recliner",
+        "Lounge akses",
+        "Makanan hangat",
+      ],
+      rescheduleFee: 325000,
+      refundableUpTo: 75,
+    }
+    const classes: FlightClassOption[] = [econ, bisnis].sort((a, b) => a.price - b.price)
+    const minPrice = Math.min(...classes.map((c) => c.price))
+    return {
+      ...f,
+      departDate,
+      classes,
+      price: minPrice,
+    }
+  })
 }
