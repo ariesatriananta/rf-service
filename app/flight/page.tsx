@@ -124,11 +124,11 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
                       <div className="text-sm text-gray-500 uppercase tracking-wide">Rute</div>
                       <div className="flex text-base font-semibold text-gray-900">
                         {from || "-"} 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-right-icon lucide-move-right mx-1"><path d="M18 8L22 12L18 16"/><path d="M2 12H22"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-move-right-icon lucide-move-right mx-1"><path d="M18 8L22 12L18 16"/><path d="M2 12H22"/></svg>
                         {to || "-"}</div>
                       <div className="flex text-xs text-gray-500">
                         {tripLabel} 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dot-icon lucide-dot"><circle cx="12.1" cy="12.1" r="1"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-dot-icon lucide-dot"><circle cx="12.1" cy="12.1" r="1"/></svg>
                         {transportLabel}</div>
                     </div>
                   </div>

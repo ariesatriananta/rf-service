@@ -356,7 +356,7 @@ export default function FlightBookingDetail({ searchParams }: BookingPageProps) 
                   <div>
                     <div className="flex text-sm text-gray-600">
                         {ensureString(searchParams.from) || flight.from} 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-right-icon lucide-move-right mx-1"><path d="M18 8L22 12L18 16"/><path d="M2 12H22"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-move-right-icon lucide-move-right mx-1"><path d="M18 8L22 12L18 16"/><path d="M2 12H22"/></svg>
                         {ensureString(searchParams.to) || flight.to}</div>
                     <div className="text-base font-semibold text-gray-900">{flight.airline}</div>
                     <div className="text-xs text-gray-500">{flight.code}</div>
