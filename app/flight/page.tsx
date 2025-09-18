@@ -1,4 +1,4 @@
-import SearchForm from "@/components/search/SearchForm"
+﻿import SearchForm from "@/components/search/SearchForm"
 import AppHeader from "@/components/layout/AppHeader"
 import QuerySummary from "@/components/results/QuerySummary"
 import ResultsControls from "@/components/results/ResultsControls"
@@ -6,6 +6,7 @@ import FlightCard from "@/components/results/FlightCard"
 import FlightResults from "@/components/results/FlightResults"
 import FlightResultsSkeleton from "@/components/results/FlightResultsSkeleton"
 import { getMockFlights } from "@/lib/mockFlights"
+import { formatDateID } from "@/lib/utils"
 import type { Metadata } from "next"
 import { Suspense } from "react"
 import { Plane } from "lucide-react"
@@ -40,9 +41,6 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
   const transport = searchParams.transport || "pesawat"
   const tripLabel = trip === "round" ? "Pulang-Pergi" : trip === "oneway" ? "Sekali Jalan" : "Multi-kota"
   const transportLabel = transport === "pesawat" ? "Pesawat" : transport === "bus" ? "Bus" : "Kapal"
-
-  const formatDate = (v?: string) =>
-    v ? new Date(v).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : undefined
 
   const hasQuery = Boolean(from && to)
 
@@ -124,16 +122,22 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
                     </div>
                     <div>
                       <div className="text-sm text-gray-500 uppercase tracking-wide">Rute</div>
-                      <div className="text-base font-semibold text-gray-900">{from || "-"} → {to || "-"}</div>
-                      <div className="text-xs text-gray-500">{tripLabel} • {transportLabel}</div>
+                      <div className="flex text-base font-semibold text-gray-900">
+                        {from || "-"} 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-right-icon lucide-move-right mx-1"><path d="M18 8L22 12L18 16"/><path d="M2 12H22"/></svg>
+                        {to || "-"}</div>
+                      <div className="flex text-xs text-gray-500">
+                        {tripLabel} 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dot-icon lucide-dot"><circle cx="12.1" cy="12.1" r="1"/></svg>
+                        {transportLabel}</div>
                     </div>
                   </div>
 
                   <div className="rounded-lg border border-gray-100 bg-gray-50/70 p-3 space-y-2 text-sm">
-                    <SummaryRow label="Tanggal Pergi" value={formatDate(depart) || "-"} />
+                    <SummaryRow label="Tanggal Pergi" value={formatDateID(depart) || "-"} />
                     <SummaryRow
                       label="Tanggal Pulang"
-                      value={trip === "round" ? (formatDate(ret) || "-") : tripLabel}
+                      value={trip === "round" ? (formatDateID(ret) || "-") : tripLabel}
                     />
                     <SummaryRow label="Penumpang" value={`${pax} orang`} />
                     <SummaryRow label="Transport" value={transportLabel} />

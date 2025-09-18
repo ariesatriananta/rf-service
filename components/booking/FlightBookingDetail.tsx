@@ -6,21 +6,12 @@ import AppHeader from "@/components/layout/AppHeader"
 import { Button } from "@/components/ui/button"
 import { getMockFlights, FlightClassOption } from "@/lib/mockFlights"
 import { ArrowLeft, Plane, Clock, Users, Check } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatCurrencyIDR, formatDateID } from "@/lib/utils"
 import DatePicker from "@/components/search/DatePicker"
 
 type BookingPageProps = {
   searchParams: Record<string, string | string[] | undefined>
 }
-
-const currency = new Intl.NumberFormat("id-ID", {
-  style: "currency",
-  currency: "IDR",
-  maximumFractionDigits: 0,
-})
-
-const formatDate = (value?: string) =>
-  value ? new Date(value).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" }) : "-"
 
 const ensureString = (value: string | string[] | undefined) => {
   if (Array.isArray(value)) return value[0]
@@ -363,7 +354,10 @@ export default function FlightBookingDetail({ searchParams }: BookingPageProps) 
                     </div>
                   )}
                   <div>
-                    <div className="text-sm text-gray-600">{ensureString(searchParams.from) || flight.from} → {ensureString(searchParams.to) || flight.to}</div>
+                    <div className="flex text-sm text-gray-600">
+                        {ensureString(searchParams.from) || flight.from} 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-right-icon lucide-move-right mx-1"><path d="M18 8L22 12L18 16"/><path d="M2 12H22"/></svg>
+                        {ensureString(searchParams.to) || flight.to}</div>
                     <div className="text-base font-semibold text-gray-900">{flight.airline}</div>
                     <div className="text-xs text-gray-500">{flight.code}</div>
                   </div>
@@ -388,8 +382,8 @@ export default function FlightBookingDetail({ searchParams }: BookingPageProps) 
                 <div className="rounded-lg border border-gray-100 bg-white/60 p-3 space-y-2 text-sm">
                   <SummaryRow label="Kelas Kabin" value={classOption?.type || "-"} />
                   <SummaryRow label="Paket" value={classOption?.fare || "-"} />
-                  <SummaryRow label="Tanggal Berangkat" value={formatDate(departDate)} />
-                  <SummaryRow label="Tanggal Kembali" value={returnDate ? formatDate(returnDate) : "-"} />
+                  <SummaryRow label="Tanggal Berangkat" value={formatDateID(departDate)} />
+                  <SummaryRow label="Tanggal Kembali" value={returnDate ? formatDateID(returnDate) : "-"} />
                   <SummaryRow label="Penumpang" value={`${paxCount} orang`} />
                 </div>
               </div>
@@ -400,7 +394,7 @@ export default function FlightBookingDetail({ searchParams }: BookingPageProps) 
               <div className="space-y-2 text-sm text-gray-700">
                 <div className="flex justify-between">
                   <span>Harga per penumpang</span>
-                  <span className="font-medium text-gray-900">{currency.format(pricePerPax)}</span>
+                  <span className="font-medium text-gray-900">{formatCurrencyIDR(pricePerPax)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Jumlah penumpang</span>
@@ -408,7 +402,7 @@ export default function FlightBookingDetail({ searchParams }: BookingPageProps) 
                 </div>
                 <div className="flex justify-between border-t border-gray-200 pt-2 text-base font-semibold text-gray-900">
                   <span>Total</span>
-                  <span>{currency.format(totalPrice)}</span>
+                  <span>{formatCurrencyIDR(totalPrice)}</span>
                 </div>
               </div>
             </div>
@@ -492,3 +486,5 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
     </div>
   )
 }
+
+

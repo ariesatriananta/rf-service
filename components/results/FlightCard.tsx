@@ -1,6 +1,6 @@
-"use client"
+﻿"use client"
 
-import { cn } from "@/lib/utils"
+import { cn, formatCurrencyIDR } from "@/lib/utils"
 import type { Flight, FlightClassOption } from "@/lib/mockFlights"
 import {
   Utensils,
@@ -18,16 +18,6 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { SpinnerButton } from "@/components/ui/spinner-button"
-
-const currency = new Intl.NumberFormat("id-ID", {
-  style: "currency",
-  currency: "IDR",
-  maximumFractionDigits: 0,
-})
-
-const number = new Intl.NumberFormat("id-ID", {
-  maximumFractionDigits: 0,
-})
 
 type QueryContext = {
   from?: string
@@ -75,7 +65,7 @@ export default function FlightCard({
       {
         type: "Bisnis",
         price: Math.round(flight.price * 1.6),
-        fare: "Meal • Bagasi 30kg",
+        fare: "Meal - Bagasi 30kg",
         subtitle: "Premium",
         perks: [
           "Bagasi kabin 10 kg",
@@ -166,8 +156,10 @@ export default function FlightCard({
 
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-            <h3 className="text-lg font-semibold text-gray-900">
-              {flight.airline} • {flight.code}
+            <h3 className="flex text-lg font-semibold text-gray-900">
+                {flight.airline}
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dot-icon lucide-dot"><circle cx="12.1" cy="12.1" r="1"/></svg>
+                {flight.code}
             </h3>
             {flight.badges?.map((b) => (
               <span key={b} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
@@ -214,7 +206,7 @@ export default function FlightCard({
         </div>
 
         <div className="sm:text-right mt-4 sm:mt-0 w-full sm:w-auto">
-          <div className="text-lg font-bold text-[#d6190d]">{currency.format(minPrice)}</div>
+          <div className="text-lg font-bold text-[#d6190d]">{formatCurrencyIDR(minPrice)}</div>
           <div className="text-sm text-gray-500 mb-4">per pax</div>
           <button
             onClick={() => setOpen((v) => !v)}
@@ -264,7 +256,7 @@ export default function FlightCard({
                     </div>
                     <div>
                       <div className="text-lg font-semibold text-gray-900">
-                        {currency.format(c.price)}
+                        {formatCurrencyIDR(c.price)}
                         <span className="text-sm font-normal text-gray-500"> /org</span>
                       </div>
                       <div className="text-xs text-gray-500">Harga termasuk pajak</div>
@@ -280,7 +272,7 @@ export default function FlightCard({
                       {c.rescheduleFee && (
                         <div className="flex items-start gap-2">
                           <RefreshCcw className="w-4 h-4 mt-0.5 text-primary" />
-                          <span>Biaya reschedule Rp {number.format(c.rescheduleFee)}</span>
+                          <span>Biaya reschedule {formatCurrencyIDR(c.rescheduleFee)}</span>
                         </div>
                       )}
                       {typeof c.refundableUpTo === "number" && (
@@ -311,3 +303,6 @@ export default function FlightCard({
     </div>
   )
 }
+
+
+
