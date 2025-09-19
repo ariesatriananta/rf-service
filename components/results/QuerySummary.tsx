@@ -45,3 +45,4 @@ export default function QuerySummary({ from, to, pax, trip, depart, ret, transpo
   )
 }
 
+

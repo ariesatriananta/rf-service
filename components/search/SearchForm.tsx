@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useTransition } from "react"
 import { Search, Plane, Ship, Bus, ArrowLeftRight, Loader2 } from "lucide-react"
@@ -8,6 +8,12 @@ import DatePicker from "@/components/search/DatePicker"
 
 type TripType = "round" | "oneway" | "multicity"
 type TransportType = "pesawat" | "bus" | "kapal"
+type CabinType = "economy" | "business"
+
+const cabinLabels: Record<CabinType, string> = {
+  economy: "Ekonomi",
+  business: "Bisnis",
+}
 
 export default function SearchForm({ inline = true, actionPath = "/results" }: { inline?: boolean; actionPath?: string }) {
   const router = useRouter()
@@ -25,6 +31,7 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
   const [passengers, setPassengers] = useState(Number(params.get("pax") || 1))
   const [trip, setTrip] = useState<TripType>((params.get("trip") as TripType) || "oneway")
   const [transport, setTransport] = useState<TransportType>((params.get("transport") as TransportType) || "pesawat")
+  const [cabin, setCabin] = useState<CabinType>((params.get("cabin") as CabinType) || "economy")
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,6 +44,7 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
     usp.set("pax", String(passengers))
     usp.set("trip", trip)
     usp.set("transport", transport)
+    usp.set("cabin", cabin)
     startTransition(() => {
       router.push(`${actionPath}?${usp.toString()}`)
     })
@@ -47,6 +55,35 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
     setFrom(to)
     setTo(f)
   }
+
+  const cabinPlates = (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <label className="flex flex-col text-xs text-gray-500 gap-1">
+        Penumpang
+        <input
+          type="number"
+          min={1}
+          value={passengers}
+          onChange={(e) => setPassengers(Number(e.target.value))}
+          className="w-24 sm:w-full bg-transparent text-sm text-gray-900 focus:outline-none"
+        />
+      </label>
+      <label className="flex flex-col text-xs text-gray-500 gap-1">
+        Kelas kabin
+        <select
+          value={cabin}
+          onChange={(e) => setCabin(e.target.value as CabinType)}
+          className="w-full bg-transparent text-sm text-gray-900 focus:outline-none"
+        >
+          {Object.entries(cabinLabels).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
+  )
 
   const container = (
     <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -135,18 +172,8 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
             />
           )}
 
-          {/* Pax only (class moved to card accordion) */}
           <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
-            <div className="text-xs text-gray-500 mb-1">Penumpang</div>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min={1}
-                value={passengers}
-                onChange={(e) => setPassengers(Number(e.target.value))}
-                className="w-20 bg-transparent text-sm text-gray-900 focus:outline-none"
-              />
-            </div>
+            {cabinPlates}
           </div>
 
           {/* Submit */}
@@ -176,7 +203,6 @@ export default function SearchForm({ inline = true, actionPath = "/results" }: {
   )
 
   if (inline) return container
-  return (
-    <div className="w-full">{container}</div>
-  )
+  return <div className="w-full">{container}</div>
 }
+

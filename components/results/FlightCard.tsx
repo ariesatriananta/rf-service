@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { cn, formatCurrencyIDR } from "@/lib/utils"
-import type { Flight, FlightClassOption } from "@/lib/mockFlights"
+import type { Flight, CabinOffering, FareOption } from "@/lib/mockFlights"
 import {
   Utensils,
   BriefcaseBusiness,
@@ -27,60 +27,40 @@ type QueryContext = {
   pax?: number
   trip?: string
   transport?: string
+  cabin?: string
 }
 
 export default function FlightCard({
   flight,
+  offering,
   className,
   queryContext,
 }: {
   flight: Flight
+  offering: CabinOffering
   className?: string
   queryContext?: QueryContext
 }) {
   const [open, setOpen] = useState(false)
-  const [selectedClass, setSelectedClass] = useState<string>(flight.classes?.[0]?.type || "Economy")
+  const [selectedFareCode, setSelectedFareCode] = useState<string>(offering.fareOptions[0]?.code || "")
+  const [loadingFareCode, setLoadingFareCode] = useState<string | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const [accordionHeight, setAccordionHeight] = useState(0)
   const router = useRouter()
-  const [loadingClass, setLoadingClass] = useState<string | null>(null)
 
-  const classOptions = useMemo<FlightClassOption[]>(() => {
-    if (flight.classes && flight.classes.length > 0) return flight.classes
-    return [
-      {
-        type: "Economy",
-        price: flight.price,
-        fare: flight.fare,
-        subtitle: "Standar",
-        perks: [
-          "Bagasi kabin 7 kg",
-          "Bagasi 20 kg",
-          "Kursi standar (jarak 29 inci)",
-          "Tata kursi 3-3",
-        ],
-        rescheduleFee: 485200,
-        refundableUpTo: 50,
-      },
-      {
-        type: "Bisnis",
-        price: Math.round(flight.price * 1.6),
-        fare: "Meal - Bagasi 30kg",
-        subtitle: "Premium",
-        perks: [
-          "Bagasi kabin 10 kg",
-          "Bagasi 30 kg",
-          "Kursi prioritas recliner",
-          "Lounge akses",
-          "Makanan hangat",
-        ],
-        rescheduleFee: 325000,
-        refundableUpTo: 75,
-      },
-    ]
-  }, [flight.classes, flight.fare, flight.price])
+  useEffect(() => {
+    const firstCode = offering.fareOptions[0]?.code || ""
+    setSelectedFareCode(firstCode)
+    setLoadingFareCode(null)
+  }, [offering])
 
-  const minPrice = useMemo(() => Math.min(...classOptions.map((c) => c.price)), [classOptions])
+  const fareOptions = offering.fareOptions
+
+  const minPrice = useMemo(() => Math.min(...fareOptions.map((fare) => fare.price)), [fareOptions])
+
+  const selectedFare = useMemo<FareOption | undefined>(() => {
+    return fareOptions.find((fare) => fare.code === selectedFareCode) || fareOptions[0]
+  }, [fareOptions, selectedFareCode])
 
   useEffect(() => {
     const el = contentRef.current
@@ -99,7 +79,7 @@ export default function FlightCard({
     }
 
     return () => observer?.disconnect()
-  }, [open, classOptions])
+  }, [open, fareOptions])
 
   const renderFareIcon = (fare: string, regex: RegExp, Icon: React.ComponentType<{ className?: string }>) => {
     if (!regex.test(fare)) return null
@@ -111,17 +91,19 @@ export default function FlightCard({
     )
   }
 
-  const handleProceed = (option: FlightClassOption) => {
-    setSelectedClass(option.type)
-    setLoadingClass(option.type)
+  const handleProceed = (fare: FareOption) => {
+    setSelectedFareCode(fare.code)
+    setLoadingFareCode(fare.code)
+
     const params = new URLSearchParams()
     params.set("flight", flight.id)
     params.set("airline", flight.airline)
     params.set("code", flight.code)
-    params.set("class", option.type)
-    params.set("classPrice", String(option.price))
-    if (option.fare) params.set("classFare", option.fare)
-    if (option.subtitle) params.set("classLabel", option.subtitle)
+    params.set("cabin", offering.cabinClass.toLowerCase())
+    params.set("fare", fare.code)
+    params.set("fareName", fare.name)
+    params.set("farePrice", String(fare.price))
+    if (fare.description) params.set("fareDesc", fare.description)
     params.set("from", (queryContext?.from || flight.from) ?? "")
     params.set("to", (queryContext?.to || flight.to) ?? "")
     if (queryContext?.depart ?? flight.departDate) {
@@ -130,11 +112,7 @@ export default function FlightCard({
     if (queryContext?.returnDate) params.set("return", queryContext.returnDate)
     if (queryContext?.trip) params.set("trip", queryContext.trip)
     if (queryContext?.transport) params.set("transport", queryContext.transport)
-    params.set("departTime", flight.departTime)
-    params.set("arriveTime", flight.arriveTime)
-    params.set("duration", flight.duration)
-    params.set("stops", String(flight.stops))
-    params.set("pax", String(queryContext?.pax || 1))
+    if (queryContext?.pax) params.set("pax", String(queryContext.pax))
 
     setTimeout(() => {
       router.push(`/flight/booking?${params.toString()}`)
@@ -156,14 +134,15 @@ export default function FlightCard({
 
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-            <h3 className="flex text-lg font-semibold text-gray-900">
-                {flight.airline}
-                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-dot-icon lucide-dot"><circle cx="12.1" cy="12.1" r="1"/></svg>
-                {flight.code}
+            <h3 className="text-lg font-semibold text-gray-900">
+              {flight.airline} • {flight.code}
             </h3>
-            {flight.badges?.map((b) => (
-              <span key={b} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
-                {b}
+            <span className="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary font-medium">
+              {offering.cabinClass}
+            </span>
+            {flight.badges?.map((badge) => (
+              <span key={badge} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                {badge}
               </span>
             ))}
           </div>
@@ -198,10 +177,10 @@ export default function FlightCard({
           </div>
 
           <div className="text-gray-500 text-sm inline-flex items-center gap-3 flex-wrap">
-            {renderFareIcon(flight.fare, /(Meal|Snack)/i, Utensils)}
-            {renderFareIcon(flight.fare, /(Bagasi|20kg|bag)/i, LuggageIcon)}
-            {renderFareIcon(flight.fare, /(Hand)/i, BriefcaseBusiness)}
-            {renderFareIcon(flight.fare, /(Wi.?Fi|Wifi)/i, Wifi)}
+            {renderFareIcon(flight.fareSummary, /(Meal|Snack)/i, Utensils)}
+            {renderFareIcon(flight.fareSummary, /(Bagasi|20kg|30kg)/i, LuggageIcon)}
+            {renderFareIcon(flight.fareSummary, /(Hand|kabin)/i, BriefcaseBusiness)}
+            {renderFareIcon(flight.fareSummary, /(Wi.?Fi|Wifi)/i, Wifi)}
           </div>
         </div>
 
@@ -234,16 +213,15 @@ export default function FlightCard({
           style={{ opacity: open ? 1 : 0, transition: "opacity 0.25s ease" }}
         >
           <div className="text-sm font-medium text-gray-800 flex items-center gap-2">
-            <Info className="w-4 h-4 text-primary" /> Pilih kelas kabin
+            <Info className="w-4 h-4 text-primary" /> Pilih paket tarif {offering.cabinClass.toLowerCase()}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            {classOptions.map((c) => {
-              const active = selectedClass === c.type
-
+            {fareOptions.map((fare) => {
+              const active = selectedFareCode === fare.code
               return (
                 <div
-                  key={c.type}
+                  key={fare.code}
                   className={cn(
                     "flex flex-col justify-between rounded-2xl border bg-white shadow-sm transition-all",
                     active ? "border-primary shadow-md" : "border-transparent hover:border-primary/50 hover:shadow-md"
@@ -251,34 +229,34 @@ export default function FlightCard({
                 >
                   <div className="p-4 space-y-3">
                     <div className="text-xs uppercase tracking-wide text-primary">
-                      {c.type}
-                      {c.subtitle ? ` | ${c.subtitle}` : ""}
+                      {offering.cabinClass} | {fare.name}
                     </div>
                     <div>
                       <div className="text-lg font-semibold text-gray-900">
-                        {formatCurrencyIDR(c.price)}
+                        {formatCurrencyIDR(fare.price)}
                         <span className="text-sm font-normal text-gray-500"> /org</span>
                       </div>
-                      <div className="text-xs text-gray-500">Harga termasuk pajak</div>
+                      {fare.description && <div className="text-xs text-gray-500">{fare.description}</div>}
                     </div>
-                    {c.fare && <div className="text-sm text-gray-600">{c.fare}</div>}
                     <div className="space-y-2 text-sm text-gray-700">
-                      {c.perks?.map((perk) => (
+                      {fare.perks.map((perk) => (
                         <div key={perk} className="flex items-start gap-2">
                           <CheckCircle2 className="w-4 h-4 mt-0.5 text-primary" />
                           <span>{perk}</span>
                         </div>
                       ))}
-                      {c.rescheduleFee && (
+                      {typeof fare.rescheduleFee === "number" && (
                         <div className="flex items-start gap-2">
                           <RefreshCcw className="w-4 h-4 mt-0.5 text-primary" />
-                          <span>Biaya reschedule {formatCurrencyIDR(c.rescheduleFee)}</span>
+                          <span>
+                            Biaya reschedule {fare.rescheduleFee === 0 ? "gratis" : formatCurrencyIDR(fare.rescheduleFee)}
+                          </span>
                         </div>
                       )}
-                      {typeof c.refundableUpTo === "number" && (
+                      {typeof fare.refundableUpTo === "number" && (
                         <div className="flex items-start gap-2">
                           <RotateCcw className="w-4 h-4 mt-0.5 text-primary" />
-                          <span>Bisa direfund hingga {c.refundableUpTo}%</span>
+                          <span>Refund hingga {fare.refundableUpTo}%</span>
                         </div>
                       )}
                     </div>
@@ -287,9 +265,11 @@ export default function FlightCard({
                   <div className="border-t border-gray-200 bg-gray-50 p-4 flex items-center justify-center">
                     <SpinnerButton
                       type="button"
-                      loading={loadingClass === c.type}
-                      className="min-w-[10rem] text-sm px-4 py-2 rounded-full font-semibold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
-                      onClick={() => handleProceed(c)}
+                      loading={loadingFareCode === fare.code}
+                      className={cn(
+                        "min-w-[10rem] text-sm px-4 py-2 rounded-full font-semibold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+                      )}
+                      onClick={() => handleProceed(fare)}
                     >
                       Booking Sekarang
                     </SpinnerButton>
@@ -303,6 +283,4 @@ export default function FlightCard({
     </div>
   )
 }
-
-
 

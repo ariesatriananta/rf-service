@@ -10,6 +10,7 @@ import { formatDateID } from "@/lib/utils"
 import type { Metadata } from "next"
 import { Suspense } from "react"
 import { Plane } from "lucide-react"
+import { IconArrowRight } from '@/components/icons'
 
 export const metadata: Metadata = {
   title: "Flight",
@@ -29,6 +30,12 @@ type SearchParams = {
   airline?: string
   price_min?: string
   price_max?: string
+  cabin?: string
+}
+
+const cabinLabels: Record<string, string> = {
+  economy: "Ekonomi",
+  business: "Bisnis",
 }
 
 export default function FlightBookingPage({ searchParams }: { searchParams: SearchParams }) {
@@ -41,26 +48,10 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
   const transport = searchParams.transport || "pesawat"
   const tripLabel = trip === "round" ? "Pulang-Pergi" : trip === "oneway" ? "Sekali Jalan" : "Multi-kota"
   const transportLabel = transport === "pesawat" ? "Pesawat" : transport === "bus" ? "Bus" : "Kapal"
+  const cabinParam = (searchParams.cabin || "economy").toLowerCase()
+  const cabinLabel = cabinLabels[cabinParam] || "Ekonomi"
 
   const hasQuery = Boolean(from && to)
-
-  // helpers for filter/sort
-  const parseMinutes = (t: string) => {
-    if (t.includes("h")) {
-      const [h, m] = t.split("h").map((s) => s.replace(/[^0-9]/g, "")).filter(Boolean)
-      const hh = Number(h || 0)
-      const mm = Number(m || 0)
-      return hh * 60 + mm
-    }
-    const [hh, mm] = t.split(":").map(Number)
-    return hh * 60 + mm
-  }
-
-  const qStops = searchParams.stops || "any" // any|nonstop|transit
-  const qSort = (searchParams.sort as string) || "price"
-  const qAirline = (searchParams.airline as string) || ""
-  const qPriceMin = Number(searchParams.price_min || 0)
-  const qPriceMax = Number(searchParams.price_max || 5000000)
 
   const flightsData = getMockFlights()
   const airlinesAll = Array.from(new Set(flightsData.map((f) => f.airline)))
@@ -96,9 +87,10 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
               </div>
             ) : (
               <Suspense
-                key={JSON.stringify({ from, to, depart, ret, qStops, qSort, qAirline, qPriceMin, qPriceMax })}
+                key={JSON.stringify({ from, to, depart, ret, cabin: cabinParam })}
                 fallback={<FlightResultsSkeleton />}
               >
+                {/* @ts-expect-error Async Server Component */}
                 <FlightResults searchParams={searchParams} />
               </Suspense>
             )}
@@ -124,7 +116,7 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
                       <div className="text-sm text-gray-500 uppercase tracking-wide">Rute</div>
                       <div className="flex text-base font-semibold text-gray-900">
                         {from || "-"} 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-move-right-icon lucide-move-right mx-1"><path d="M18 8L22 12L18 16"/><path d="M2 12H22"/></svg>
+                        <IconArrowRight aria-hidden size={24} strokeWidth={1} />
                         {to || "-"}</div>
                       <div className="flex text-xs text-gray-500">
                         {tripLabel} 
@@ -139,6 +131,7 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
                       label="Tanggal Pulang"
                       value={trip === "round" ? (formatDateID(ret) || "-") : tripLabel}
                     />
+                    <SummaryRow label="Kelas Kabin" value={cabinLabel} />
                     <SummaryRow label="Penumpang" value={`${pax} orang`} />
                     <SummaryRow label="Transport" value={transportLabel} />
                   </div>
