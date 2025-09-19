@@ -15,6 +15,7 @@ type SearchParams = {
   price_min?: string
   price_max?: string
   cabin?: string
+  debug?: string
 }
 
 const parseMinutes = (t: string) => {
@@ -78,7 +79,11 @@ function ResultsContent({ searchParams }: { searchParams: SearchParams }) {
   let flights = flightsWithCabin
 
   if (depart) {
-    flights = flights.filter(({ flight }) => flight.departDate === depart)
+    const availableDates = new Set(flightsWithCabin.map(({ flight }) => flight.departDate))
+    if (availableDates.has(depart)) {
+      flights = flights.filter(({ flight }) => flight.departDate === depart)
+    }
+    // Jika tanggal yang diminta tidak tersedia di mock, biarkan tanpa filter tanggal
   }
 
   if (qStops === "nonstop") {
@@ -105,6 +110,27 @@ function ResultsContent({ searchParams }: { searchParams: SearchParams }) {
   })
 
   if (flights.length === 0) {
+    if (searchParams.debug === '1') {
+      return (
+        <div className="space-y-3">
+          <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-600">
+            Tidak ada hasil untuk rute ini (mock data).
+          </div>
+          <pre className="bg-gray-900 text-gray-100 text-xs p-3 rounded-md overflow-auto">
+{JSON.stringify({
+  query: { from, to, depart, stops: qStops, sort: qSort, airline: qAirline, price_min: qPriceMin, price_max: qPriceMax, cabin: requestedCabin },
+  counts: {
+    source: flightsSource.length,
+    byRoute: filteredByRoute.length,
+    withCabin: flightsWithCabin.length,
+    final: flights.length,
+  },
+  sampleRouteMatches: filteredByRoute.slice(0,3).map(f=>({id:f.id, from:f.from, to:f.to, date:f.departDate})),
+}, null, 2)}
+          </pre>
+        </div>
+      )
+    }
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-600">
         Tidak ada hasil untuk rute ini (mock data).
