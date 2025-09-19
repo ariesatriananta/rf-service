@@ -197,12 +197,21 @@ const buildFareOptions = (raw: RawFlight, cabin: CabinClass): FareOption[] => {
   return cabin === "Bisnis" ? buildBusinessFares(raw) : buildEconomyFares(raw)
 }
 
+const MOCK_BASE_DATE_ISO = process.env.NEXT_PUBLIC_MOCK_BASE_DATE || "2025-09-20"
+
+const parseBaseDate = (iso: string) => {
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!m) return new Date(2025, 8, 20)
+  const [, y, mo, d] = m
+  return new Date(Number(y), Number(mo) - 1, Number(d))
+}
+
 export function getMockFlights(): Flight[] {
-  const today = new Date()
+  const baseDate = parseBaseDate(MOCK_BASE_DATE_ISO)
   const grouped = new Map<string, Flight>()
 
   for (const raw of baseFlights) {
-    const departDate = toIso(new Date(today.getFullYear(), today.getMonth(), today.getDate() + (raw.offset || 0)))
+    const departDate = toIso(new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + (raw.offset || 0)))
     let flight = grouped.get(raw.id)
     if (!flight) {
       flight = {
