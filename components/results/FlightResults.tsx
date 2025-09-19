@@ -79,11 +79,7 @@ function ResultsContent({ searchParams }: { searchParams: SearchParams }) {
   let flights = flightsWithCabin
 
   if (depart) {
-    const availableDates = new Set(flightsWithCabin.map(({ flight }) => flight.departDate))
-    if (availableDates.has(depart)) {
-      flights = flights.filter(({ flight }) => flight.departDate === depart)
-    }
-    // Jika tanggal yang diminta tidak tersedia di mock, biarkan tanpa filter tanggal
+    flights = flights.filter(({ flight }) => flight.departDate === depart)
   }
 
   if (qStops === "nonstop") {
