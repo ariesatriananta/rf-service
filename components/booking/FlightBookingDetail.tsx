@@ -44,10 +44,23 @@ export default function FlightBookingDetail({ searchParams }: BookingPageProps) 
   const [contact, setContact] = useState<ContactForm>({ firstMiddle: '', lastName: '', email: '', phone: '' })
   const [passengers, setPassengers] = useState<PassengerForm[]>(() => buildPassengers(paxCount))
   const [submitted, setSubmitted] = useState(false)
+  const [expiredToast, setExpiredToast] = useState(false)
 
   useEffect(() => {
     setPassengers(buildPassengers(paxCount))
   }, [paxCount])
+
+  useEffect(() => {
+    try {
+      const flag = sessionStorage.getItem('rf_payment_expired')
+      if (flag) {
+        sessionStorage.removeItem('rf_payment_expired')
+        setExpiredToast(true)
+        const t = setTimeout(() => setExpiredToast(false), 4000)
+        return () => clearTimeout(t)
+      }
+    } catch {}
+  }, [])
 
   const pricePerPax = fareOption?.price ?? 0
   const totalPrice = pricePerPax * paxCount
@@ -55,6 +68,18 @@ export default function FlightBookingDetail({ searchParams }: BookingPageProps) 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSubmitted(true)
+    try {
+      if (typeof window !== 'undefined') {
+        const payload = {
+          contact,
+          passengers,
+          savedAt: Date.now(),
+        }
+        sessionStorage.setItem('rf_booking', JSON.stringify(payload))
+        const qs = window.location.search
+        router.push(`/flight/payment${qs || ''}`)
+      }
+    } catch {}
   }
 
   const resetForm = () => {
@@ -82,6 +107,11 @@ export default function FlightBookingDetail({ searchParams }: BookingPageProps) 
   return (
     <div className='min-h-screen bg-gray-50'>
       <AppHeader title='' />
+      {expiredToast && (
+        <div className='fixed top-4 right-4 z-50 rounded-md bg-gray-900 text-white/90 px-4 py-3 text-sm shadow-lg'>
+          Sesi pembayaran berakhir. Silakan ulangi proses pembayaran.
+        </div>
+      )}
       <main className='max-w-7xl mx-auto px-4 sm:px-6 py-6'>
         <button
           type='button'
