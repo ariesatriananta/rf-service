@@ -2,6 +2,7 @@
 import { useMemo, useRef, useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { formatCurrencyIDR } from "@/lib/utils"
 import * as Slider from "@radix-ui/react-slider"
 
 type SortKey = "price" | "duration" | "depart-asc" | "depart-desc" | "arrive-asc" | "arrive-desc"
@@ -129,7 +130,7 @@ export default function ResultsControls({ airlines, priceMaxDefault = 1000 }: { 
                 </Slider.Root>
               </div>
             </div>
-            <div className="mt-2 text-sm text-gray-600">Rp {localMin.toLocaleString()} - Rp {localMax.toLocaleString()}</div>
+            <div className="mt-2 text-sm text-gray-600">{formatCurrencyIDR(localMin)} - {formatCurrencyIDR(localMax)}</div>
           </div>
 
           {/* Airlines */}
