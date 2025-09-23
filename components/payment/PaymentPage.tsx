@@ -81,12 +81,14 @@ export default function PaymentPage({ searchParams }: PageProps) {
   const [vaBank, setVaBank] = useState<'BCA' | 'BRI' | 'BNI'>('BCA')
   const [minimarket, setMinimarket] = useState<'Alfamart/Alfamidi' | 'Indomaret'>('Alfamart/Alfamidi')
   const [showModal, setShowModal] = useState(false)
+  const bookingCtxRef = useRef<{ contact?: any; passengers?: PassengerForm[] } | null>(null)
 
   useEffect(() => {
     try {
       const s = sessionStorage.getItem('rf_booking')
       if (s) {
         const data = JSON.parse(s)
+        bookingCtxRef.current = data
         if (Array.isArray(data?.passengers)) setPassengers(data.passengers)
       } else {
         // No booking context → redirect back to booking
@@ -95,6 +97,8 @@ export default function PaymentPage({ searchParams }: PageProps) {
       }
     } catch {}
   }, [router])
+
+  // Note: insert order is moved to confirmation page to avoid early creation
 
   if (!flight || !offering || !fareOption) {
     return (
@@ -231,7 +235,21 @@ export default function PaymentPage({ searchParams }: PageProps) {
             </div>
 
             <div>
-              <Button className='w-full px-6 py-3 text-base' onClick={() => setShowModal(true)}>
+              <Button
+                className='w-full px-6 py-3 text-base'
+                onClick={() => {
+                  try {
+                    const qs = typeof window !== 'undefined' ? window.location.search : ''
+                    const usp = new URLSearchParams(qs)
+                    usp.set('method', method)
+                    usp.set('channel', method === 'va' ? vaBank : method === 'minimarket' ? minimarket : 'ATM BERSAMA')
+                    // keep existing params (from,to,flight,cabin,fare,pax,depart,return,...)
+                    router.push(`/flight/payment/confirm?${usp.toString()}`)
+                  } catch {
+                    router.push('/flight/payment/confirm')
+                  }
+                }}
+              >
                 {primaryLabel}
               </Button>
             </div>
@@ -263,7 +281,7 @@ export default function PaymentPage({ searchParams }: PageProps) {
                   <ol className='list-decimal pl-5 space-y-1'>
                     <li>Buka aplikasi/ATM bank {vaBank} Anda</li>
                     <li>Pilih menu Virtual Account</li>
-                    <li>Masukkan nomor VA: <strong>{`${vaBank === 'BCA' ? '3901' : vaBank === 'BRI' ? '77777' : '8808'}${String(flight.id).slice(-6)}`}</strong></li>
+                    <li>Masukkan nomor VA: <strong>{order?.payment_reference ?? `${vaBank === 'BCA' ? '3901' : vaBank === 'BRI' ? '77777' : '8808'}${String(flight.id).slice(-6)}`}</strong></li>
                     <li>Periksa nominal: <strong>{formatCurrencyIDR(totalPrice)}</strong> lalu konfirmasi</li>
                     <li>Selesaikan pembayaran</li>
                   </ol>
@@ -280,7 +298,7 @@ export default function PaymentPage({ searchParams }: PageProps) {
                   <ol className='list-decimal pl-5 space-y-1'>
                     <li>Kunjungi {minimarket}</li>
                     <li>Informasikan ingin pembayaran pesanan RedFeng</li>
-                    <li>Tunjukkan kode bayar: <strong>{`RF-${String(flight.id).slice(-4)}-${String(totalPrice).slice(0,3)}`}</strong></li>
+                    <li>Tunjukkan kode bayar: <strong>{order?.payment_reference ?? `RF-${String(flight.id).slice(-4)}-${String(totalPrice).slice(0,3)}`}</strong></li>
                     <li>Bayar sebesar <strong>{formatCurrencyIDR(totalPrice)}</strong></li>
                   </ol>
                 )}
