@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { getConnection } from '@/lib/db'
 import { getMockFlights } from '@/lib/mockFlights'
+import { buildPaymentReference, defaultChannel, methodLabel, type PaymentMethod } from '@/lib/payment'
 
 type InitBody = {
   flightId: string
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
     const flightId = body.flightId
     const pax = Math.max(1, Number(body.pax || 1))
     const method = body.method
-    const channel = body.channel || (method === 'va' ? 'BCA' : method === 'transfer' ? 'ATM BERSAMA' : 'Alfamart/Alfamidi')
+  const channel = body.channel || defaultChannel(method as PaymentMethod)
     const cabinReq = (body.cabin || 'economy').toLowerCase()
     const fareCode = body.fareCode
 
@@ -116,20 +117,7 @@ export async function POST(req: NextRequest) {
       new Date().toISOString().slice(0, 7), // YYYY-MM scope
     ].join('|')
 
-    // Payment reference mock
-    let paymentReference: string
-    if (method === 'va') {
-      const prefix = vaPrefix(channel)
-      const tail = String(flight.id).replace(/\D/g, '').slice(-6).padStart(6, '0') || '000000'
-      paymentReference = `${prefix}${tail}`
-    } else if (method === 'transfer') {
-      const tail = String(flight.id).replace(/\D/g, '').slice(-6).padStart(6, '0') || '000000'
-      paymentReference = `TRF${tail}`
-    } else {
-      const a = String(flight.id).slice(-4).replace(/[^A-Za-z0-9]/g, '').toUpperCase()
-      const b = String(total).replace(/\D/g, '').slice(0, 3).padStart(3, '0')
-      paymentReference = `RF-${a}-${b}`
-    }
+    const paymentReference = buildPaymentReference(method as PaymentMethod, channel, { flightId: flight.id, amount: total })
 
     const expiresAt = new Date(Date.now() + EXPIRE_MINUTES * 60 * 1000)
 
@@ -226,7 +214,7 @@ export async function POST(req: NextRequest) {
           subtotal,
           disc,
           total,
-          method === 'va' ? 'VIRTUAL ACCOUNT' : method === 'transfer' ? 'BANK TRANSFER' : 'MINIMARKET',
+          methodLabel(method as PaymentMethod),
           'UNPAID',
           channel,
           paymentReference,

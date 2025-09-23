@@ -7,12 +7,11 @@ import BookingProgress from '@/components/booking/BookingProgress'
 import FlightSummaryCard from '@/components/booking/FlightSummaryCard'
 import PriceDetailsCard from '@/components/booking/PriceDetailsCard'
 import PassengerDetailsCard from '@/components/payment/PassengerDetailsCard'
-import PaymentCountdown from '@/components/payment/PaymentCountdown'
 import { Button } from '@/components/ui/button'
 import { ensureString, type PassengerForm } from '@/lib/booking'
 import { getMockFlights, type CabinOffering, type FareOption } from '@/lib/mockFlights'
 import { formatCurrencyIDR } from '@/lib/utils'
-import { Lock } from 'lucide-react'
+// no countdown here; countdown lives in confirm page
 
 function Collapsible({ open, children }: { open: boolean; children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -80,7 +79,7 @@ export default function PaymentPage({ searchParams }: PageProps) {
   const [method, setMethod] = useState<'va' | 'transfer' | 'minimarket'>('va')
   const [vaBank, setVaBank] = useState<'BCA' | 'BRI' | 'BNI'>('BCA')
   const [minimarket, setMinimarket] = useState<'Alfamart/Alfamidi' | 'Indomaret'>('Alfamart/Alfamidi')
-  const [showModal, setShowModal] = useState(false)
+  // modal removed; direct navigate to confirm page
   const bookingCtxRef = useRef<{ contact?: any; passengers?: PassengerForm[] } | null>(null)
 
   useEffect(() => {
@@ -129,16 +128,7 @@ export default function PaymentPage({ searchParams }: PageProps) {
     'Indomaret': { png: '/minimarkets/indomaret.png', svg: '/minimarkets/indomaret.svg' },
   }
 
-  const handleExpire = () => {
-    try {
-      sessionStorage.setItem('rf_payment_expired', '1')
-      sessionStorage.removeItem('rf_payment_exp')
-      sessionStorage.removeItem('rf_booking')
-    } catch {}
-    if (typeof window !== 'undefined') {
-      window.location.reload()
-    }
-  }
+  // note: countdown & expiry handling moved to confirm page
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -146,12 +136,7 @@ export default function PaymentPage({ searchParams }: PageProps) {
       <main className='max-w-7xl mx-auto px-4 sm:px-6 py-6'>
         <BookingProgress currentStep='payment' />
 
-        <div className='mb-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sky-800 flex items-center justify-between'>
-          <span>Tenang, harga tidak akan berubah. Yuk selesaikan pembayaran dalam <PaymentCountdown onExpire={handleExpire} />.</span>
-          <span className='hidden sm:inline-flex items-center gap-1 text-xs rounded-full bg-emerald-100 text-emerald-700 px-2 py-1'>
-            <Lock className='w-3 h-3' /> Pembayaran Aman
-          </span>
-        </div>
+        {/* Info banner removed; confirmation page handles countdown */}
 
         <div className='grid gap-6 lg:grid-cols-[2fr_1fr] items-start'>
           <section className='space-y-4'>
@@ -243,7 +228,6 @@ export default function PaymentPage({ searchParams }: PageProps) {
                     const usp = new URLSearchParams(qs)
                     usp.set('method', method)
                     usp.set('channel', method === 'va' ? vaBank : method === 'minimarket' ? minimarket : 'ATM BERSAMA')
-                    // keep existing params (from,to,flight,cabin,fare,pax,depart,return,...)
                     router.push(`/flight/payment/confirm?${usp.toString()}`)
                   } catch {
                     router.push('/flight/payment/confirm')
@@ -271,45 +255,7 @@ export default function PaymentPage({ searchParams }: PageProps) {
           </aside>
         </div>
 
-        {showModal && (
-          <div className='fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4'>
-            <div className='bg-white rounded-xl w-full max-w-lg p-6 space-y-4'>
-              <h3 className='text-lg font-semibold text-gray-900'>Konfirmasi</h3>
-              <p className='text-gray-700'>Metode: {primaryLabel}. Berikut langkah pembayaran:</p>
-              <div className='rounded-md bg-gray-50 border border-gray-200 p-3 text-sm text-gray-700'>
-                {method === 'va' && (
-                  <ol className='list-decimal pl-5 space-y-1'>
-                    <li>Buka aplikasi/ATM bank {vaBank} Anda</li>
-                    <li>Pilih menu Virtual Account</li>
-                    <li>Masukkan nomor VA: <strong>{order?.payment_reference ?? `${vaBank === 'BCA' ? '3901' : vaBank === 'BRI' ? '77777' : '8808'}${String(flight.id).slice(-6)}`}</strong></li>
-                    <li>Periksa nominal: <strong>{formatCurrencyIDR(totalPrice)}</strong> lalu konfirmasi</li>
-                    <li>Selesaikan pembayaran</li>
-                  </ol>
-                )}
-                {method === 'transfer' && (
-                  <ol className='list-decimal pl-5 space-y-1'>
-                    <li>Masuk ke aplikasi perbankan pilihan Anda</li>
-                    <li>Lakukan transfer ke rekening perusahaan sesuai instruksi yang akan dikirimkan</li>
-                    <li>Nominal harus tepat: <strong>{formatCurrencyIDR(totalPrice)}</strong></li>
-                    <li>Unggah bukti transfer jika diminta</li>
-                  </ol>
-                )}
-                {method === 'minimarket' && (
-                  <ol className='list-decimal pl-5 space-y-1'>
-                    <li>Kunjungi {minimarket}</li>
-                    <li>Informasikan ingin pembayaran pesanan RedFeng</li>
-                    <li>Tunjukkan kode bayar: <strong>{order?.payment_reference ?? `RF-${String(flight.id).slice(-4)}-${String(totalPrice).slice(0,3)}`}</strong></li>
-                    <li>Bayar sebesar <strong>{formatCurrencyIDR(totalPrice)}</strong></li>
-                  </ol>
-                )}
-              </div>
-              <div className='flex justify-end gap-2'>
-                <button className='px-4 py-2 text-sm text-gray-600' onClick={() => setShowModal(false)}>Tutup</button>
-                <Button onClick={() => setShowModal(false)}>OK</Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Modal removed; flow navigates to confirmation page */}
       </main>
     </div>
   )

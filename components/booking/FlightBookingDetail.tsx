@@ -46,6 +46,22 @@ export default function FlightBookingDetail({ searchParams }: BookingPageProps) 
   const [submitted, setSubmitted] = useState(false)
   const [expiredToast, setExpiredToast] = useState(false)
 
+  // Prefill contact from session (rf_booking) so user doesn't retype on refresh
+  useEffect(() => {
+    try {
+      const s = sessionStorage.getItem('rf_booking')
+      if (s) {
+        const data = JSON.parse(s)
+        if (data?.contact) {
+          setContact((prev) => ({
+            ...prev,
+            ...(typeof data.contact === 'object' ? data.contact : {}),
+          }))
+        }
+      }
+    } catch {}
+  }, [])
+
   useEffect(() => {
     setPassengers(buildPassengers(paxCount))
   }, [paxCount])
