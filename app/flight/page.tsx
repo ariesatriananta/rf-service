@@ -1,8 +1,6 @@
 ﻿import SearchForm from "@/components/search/SearchForm"
 import AppHeader from "@/components/layout/AppHeader"
-import QuerySummary from "@/components/results/QuerySummary"
 import ResultsControls from "@/components/results/ResultsControls"
-import FlightCard from "@/components/results/FlightCard"
 import FlightResults from "@/components/results/FlightResults"
 import FlightResultsSkeleton from "@/components/results/FlightResultsSkeleton"
 import { getMockFlights } from "@/lib/mockFlights"
@@ -83,7 +81,7 @@ export default function FlightBookingPage({ searchParams }: { searchParams: Sear
           <div className="space-y-4">
             {!hasQuery ? (
               <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-600">
-                Tidak ditemukan data
+                Belum ada pencarian penerbangan. Silakan isi form di atas untuk mencari penerbangan.
               </div>
             ) : (
               <Suspense
