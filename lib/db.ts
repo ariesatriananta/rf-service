@@ -10,6 +10,7 @@ type DBConfig = {
   waitForConnections?: boolean
   connectionLimit?: number
   queueLimit?: number
+  timezone?: string
 }
 
 const cfg: DBConfig = {
@@ -18,6 +19,8 @@ const cfg: DBConfig = {
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || '',
   port: Number(process.env.DB_PORT || 3306),
+  // Ensure JS Date -> MySQL uses Asia/Jakarta (+07:00)
+  timezone: process.env.DB_TIMEZONE || process.env.DB_TZ || '+07:00',
   ssl: process.env.DB_SSL === 'true'
     ? {
         rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true',
@@ -36,5 +39,11 @@ export async function query<T = any>(sql: string, params: any[] = []) {
 }
 
 export async function getConnection() {
-  return await pool.getConnection()
+  const conn = await pool.getConnection()
+  // Also set MySQL session time_zone so NOW()/CURRENT_TIMESTAMP follow +07:00
+  const tz = process.env.DB_TIMEZONE || process.env.DB_TZ || '+07:00'
+  try {
+    await conn.query('SET time_zone = ?', [tz])
+  } catch {}
+  return conn
 }

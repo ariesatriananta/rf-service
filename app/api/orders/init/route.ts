@@ -13,7 +13,7 @@ type InitBody = {
   depart?: string
   returnDate?: string
   method: 'va' | 'transfer' | 'minimarket'
-  channel?: string // 'BCA' | 'BRI' | 'BNI' | 'ATM BERSAMA' | 'Alfamart/Alfamidi' | 'Indomaret'
+  channel?: string // 'BCA' | 'BRI' | 'BNI' | 'MANDIRI' | 'ATM BERSAMA' | 'Alfamart/Alfamidi' | 'Indomaret'
   contact?: {
     firstMiddle?: string
     lastName?: string
@@ -101,10 +101,12 @@ export async function POST(req: NextRequest) {
     const birthDateStr = (firstPassenger?.birthDate || '').trim()
     const birthDate = birthDateStr ? new Date(birthDateStr) : undefined
 
-    if (!identityNumber && !email) {
-      return new Response(JSON.stringify({ error: 'identity_number or email required' }), { status: 400 })
+    // Email now required for customer identification
+    if (!email) {
+      return new Response(JSON.stringify({ error: 'email required' }), { status: 400 })
     }
 
+    // Idempotency key no longer includes identityNumber; email is required
     const idempotencyKey = [
       flightId,
       offering.cabinClass,
@@ -112,8 +114,7 @@ export async function POST(req: NextRequest) {
       String(pax),
       method,
       channel,
-      identityNumber || 'noid',
-      email || 'noemail',
+      email,
       new Date().toISOString().slice(0, 7), // YYYY-MM scope
     ].join('|')
 
@@ -125,16 +126,43 @@ export async function POST(req: NextRequest) {
     try {
       await conn.beginTransaction()
 
-      // find or create customer
+      // find or create customer (identify by email, fallback to identity number)
       let customerId: number | null = null
-      if (identityNumber) {
-        const [rows] = await conn.query("SELECT customer_id FROM m_customer WHERE identity_number = ? LIMIT 1", [identityNumber])
-        if (Array.isArray(rows) && rows.length) customerId = rows[0].customer_id
+      // 1) Prefer find by email
+      if (email) {
+        const [rows] = await conn.query(
+          "SELECT customer_id, first_name, last_name, full_name, phone FROM m_customer WHERE email = ? LIMIT 1",
+          [email],
+        )
+        if (Array.isArray(rows) && rows.length) {
+          customerId = rows[0].customer_id
+          // Update name/phone if changed
+          const existingFirst = (rows[0].first_name || '').trim()
+          const existingLast = (rows[0].last_name || '').trim()
+          const existingFull = (rows[0].full_name || '').trim()
+          const existingPhone = (rows[0].phone || '').trim()
+
+          const newFirst = (firstName || fullName).trim()
+          const newLast = (lastName || '').trim()
+          const newFull = fullName.trim()
+          const newPhone = (phone || '').trim()
+
+          const needUpdate =
+            (newFirst && newFirst !== existingFirst) ||
+            (newLast !== existingLast) ||
+            (newFull !== existingFull) ||
+            (newPhone !== existingPhone)
+
+          if (needUpdate) {
+            await conn.query(
+              "UPDATE m_customer SET first_name = ?, last_name = ?, full_name = ?, phone = ? WHERE customer_id = ?",
+              [newFirst, newLast, newFull, newPhone, customerId],
+            )
+          }
+        }
       }
-      if (!customerId && email) {
-        const [rows] = await conn.query("SELECT customer_id FROM m_customer WHERE email = ? LIMIT 1", [email])
-        if (Array.isArray(rows) && rows.length) customerId = rows[0].customer_id
-      }
+      // 2) No fallback to identity_number; email is the sole identifier
+      // 3) Create new if still not found
       if (!customerId) {
         const [res] = await conn.query(
           "INSERT INTO m_customer (first_name, last_name, full_name, identity_type, identity_number, address, birth_date, phone, email, active) VALUES (?,?,?,?,?,?,?,?,?,1)",
@@ -182,6 +210,14 @@ export async function POST(req: NextRequest) {
       const kode = await buildOrderCode(conn)
 
       // Insert order
+      const passengersSanitized = (body.passengers || []).map((p) => ({
+        title: p?.title || '',
+        firstMiddle: (p?.firstMiddle || '').trim(),
+        lastName: (p?.lastName || '').trim(),
+        birthDate: (p?.birthDate || '').trim(),
+        nationality: (p?.nationality || '').trim(),
+        idNumber: (p?.idNumber || '').trim(),
+      }))
       const notes = JSON.stringify({
         flightId: flight.id,
         airline: flight.airline,
@@ -192,6 +228,14 @@ export async function POST(req: NextRequest) {
         return: body.returnDate || null,
         cabin: offering.cabinClass,
         fare_code: fare.code,
+        contact: {
+          firstMiddle: firstName,
+          lastName: lastName,
+          fullName,
+          email,
+          phone,
+        },
+        passengers: passengersSanitized,
       })
 
       const [ins] = await conn.query(
@@ -250,19 +294,7 @@ export async function POST(req: NextRequest) {
       if (e && e.code === 'ER_DUP_ENTRY') {
         const [rows] = await conn.query(
           "SELECT orders_id, kode, payment_reference, payment_channel, payment_expires_at, payment_status, payment_total FROM t_orders WHERE idempotency_key = ? LIMIT 1",
-          [
-            [
-              body.flightId,
-              (body.cabin || 'economy').toLowerCase(),
-              body.fareCode,
-              String(pax),
-              method,
-              channel,
-              identityNumber || 'noid',
-              email || 'noemail',
-              new Date().toISOString().slice(0, 7),
-            ].join('|'),
-          ],
+          [idempotencyKey],
         )
         if (Array.isArray(rows) && rows.length) {
           const r = rows[0]

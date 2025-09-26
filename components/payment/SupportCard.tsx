@@ -9,8 +9,8 @@ export default function SupportCard() {
         tim kami siap membantu. Hubungi kami melalui kontak berikut:
       </p>
       <div className="space-y-2 text-sm">
-        <a href="mailto:contact@redfeng.co" className="inline-flex items-center gap-2 text-primary hover:underline">
-          <Mail className="w-4 h-4" /> contact@redfeng.co
+        <a href="mailto:hello@redfeng.co" className="inline-flex items-center gap-2 text-primary hover:underline">
+          <Mail className="w-4 h-4" /> hello@redfeng.co
         </a><br></br>
         <a href="tel:+6285821931344" className="block inline-flex items-center gap-2 text-primary hover:underline">
           <Phone className="w-4 h-4" /> +62 858-2193-1344

@@ -11,7 +11,18 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       [id],
     )
     if (!Array.isArray(rows) || rows.length === 0) return new Response(JSON.stringify({ error: 'not found' }), { status: 404 })
-    const row = rows[0]
+    let row = rows[0]
+
+    // Auto-expire unpaid orders past expiration time
+    try {
+      const status = String(row.payment_status || '')
+      const expAt = row.payment_expires_at ? new Date(row.payment_expires_at) : null
+      if (status === 'UNPAID' && expAt && expAt.getTime() <= Date.now()) {
+        await conn.query('UPDATE t_orders SET payment_status = ? WHERE orders_id = ?', ['CANCEL', id])
+        row = { ...row, payment_status: 'CANCEL' }
+      }
+    } catch {}
+
     return new Response(JSON.stringify(row), { status: 200 })
   } catch (e: any) {
     return new Response(JSON.stringify({ error: String(e && e.message || e) }), { status: 500 })
@@ -19,4 +30,3 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     conn.release()
   }
 }
-

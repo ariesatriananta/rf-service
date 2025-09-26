@@ -95,7 +95,7 @@ export default function PaymentConfirmPage() {
     run()
   }, [flight, offering, fareOption, passengers, paxCount, cabinParam, method, channel, params, flightId, fareCode, order])
 
-  // Poll status every 3s and redirect on PAID
+  // Poll status every 3s and redirect on PAID/CANCEL
   useEffect(() => {
     if (!order?.orders_id) return
     const id = setInterval(async () => {
@@ -105,6 +105,12 @@ export default function PaymentConfirmPage() {
         const data = await res.json()
         if (data.payment_status === 'PAID') {
           router.replace(`/flight/payment/success?kode=${encodeURIComponent(data.kode)}`)
+          return
+        }
+        if (data.payment_status === 'CANCEL') {
+          try { sessionStorage.removeItem('rf_payment_exp') } catch {}
+          const qs = typeof window !== 'undefined' ? window.location.search : ''
+          router.replace(`/flight/booking${qs || ''}`)
         }
       } catch {}
     }, 3000)
@@ -133,9 +139,21 @@ export default function PaymentConfirmPage() {
       <main className='max-w-7xl mx-auto px-4 sm:px-6 py-6'>
         <BookingProgress currentStep='payment' />
 
-        <div className='mb-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sky-800 flex items-center justify-between'>
-          <span>Tenang, harga tidak akan berubah. Selesaikan pembayaran dalam <PaymentCountdown />.</span>
-        </div>
+          <div className='mb-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sky-800 flex items-center justify-between'>
+            <span>
+              Tenang, harga tidak akan berubah. Selesaikan pembayaran dalam
+              {' '}
+              <PaymentCountdown
+                onExpire={() => {
+                  try { alert('Waktu pembayaran telah habis. Kembali ke halaman booking.') } catch {}
+                  try { sessionStorage.removeItem('rf_payment_exp') } catch {}
+                  const qs = typeof window !== 'undefined' ? window.location.search : ''
+                  try { router.replace(`/flight/booking${qs || ''}`) } catch { router.replace('/flight/booking') }
+                }}
+              />
+              .
+            </span>
+          </div>
 
         <div className='grid gap-6 lg:grid-cols-[2fr_1fr] items-start'>
           <section className='space-y-4'>

@@ -77,7 +77,7 @@ export default function PaymentPage({ searchParams }: PageProps) {
 
   const [passengers, setPassengers] = useState<PassengerForm[]>([])
   const [method, setMethod] = useState<'va' | 'transfer' | 'minimarket'>('va')
-  const [vaBank, setVaBank] = useState<'BCA' | 'BRI' | 'BNI'>('BCA')
+  const [vaBank, setVaBank] = useState<'BCA' | 'BRI' | 'BNI' | 'MANDIRI'>('BCA')
   const [minimarket, setMinimarket] = useState<'Alfamart/Alfamidi' | 'Indomaret'>('Alfamart/Alfamidi')
   // modal removed; direct navigate to confirm page
   const bookingCtxRef = useRef<{ contact?: any; passengers?: PassengerForm[] } | null>(null)
@@ -121,6 +121,7 @@ export default function PaymentPage({ searchParams }: PageProps) {
     BCA: { png: '/banks/bca.png', svg: '/banks/bca.svg' },
     BRI: { png: '/banks/bri.png', svg: '/banks/bri.svg' },
     BNI: { png: '/banks/bni.png', svg: '/banks/bni.svg' },
+    MANDIRI: { png: '/banks/mandiri.png', svg: '/banks/mandiri.svg' },
   }
 
   const minimarketLogos: Record<string, { png: string; svg: string }> = {
@@ -151,11 +152,12 @@ export default function PaymentPage({ searchParams }: PageProps) {
                       <LogoImg png={bankLogos['BCA'].png} svg={bankLogos['BCA'].svg} alt='BCA' className='h-5 w-auto' />
                       <LogoImg png={bankLogos['BRI'].png} svg={bankLogos['BRI'].svg} alt='BRI' className='h-5 w-auto' />
                       <LogoImg png={bankLogos['BNI'].png} svg={bankLogos['BNI'].svg} alt='BNI' className='h-5 w-auto' />
+                      <LogoImg png={bankLogos['MANDIRI'].png} svg={bankLogos['MANDIRI'].svg} alt='MANDIRI' className='h-5 w-auto' />
                     </span>
                   </button>
                   <Collapsible open={method === 'va'}>
                     <div className='px-2 pb-3'>
-                      {(['BCA','BRI','BNI'] as const).map((bank) => (
+                      {(['BCA','BRI','BNI','MANDIRI'] as const).map((bank) => (
                         <label key={bank} className='flex items-center justify-between gap-2 p-3 rounded-lg hover:bg-gray-50'>
                           <span className='inline-flex items-center gap-3'>
                             <input type='radio' name='vaBank' checked={vaBank===bank} onChange={() => setVaBank(bank)} />
