@@ -212,7 +212,7 @@ const buildFareOptions = (raw: RawFlight, cabin: CabinClass): FareOption[] => {
   return cabin === "Bisnis" ? buildBusinessFares(raw) : buildEconomyFares(raw)
 }
 
-const MOCK_BASE_DATE_ISO = "2025-09-27"
+const MOCK_BASE_DATE_ISO = "2025-09-28"
 
 const parseBaseDate = (iso: string) => {
   const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/)
